@@ -1,6 +1,6 @@
 <!-- TODO: CHANGE ALL INSTANCES OF "PROJECT-TEMPLATE" IN ENTIRE PROJECT TO YOUR PROJECT TITLE-->
 
-# PROJECT-TEMPLATE
+# Ai-driven-motion-predictor
 
 <div align="center">
 
