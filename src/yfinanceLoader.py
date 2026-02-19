@@ -1,5 +1,4 @@
 import yfinance as yf
-import numpy as np
 import matplotlib.pyplot as plt
 
 # Download 1 year of Apple stock data
