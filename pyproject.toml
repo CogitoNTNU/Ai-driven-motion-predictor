@@ -1,11 +1,18 @@
 [project]
-name = "PROJECT-TEMPLATE"
+name = "AI-driven-motion-predictor"
 version = "0.0.1"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.13"
 license-files = ["LICENSE"]
-dependencies = []
+dependencies = [
+    "matplotlib>=3.10.8",
+    "neuralprophet>=0.6.2",
+    "numpy>=1.25.0,<2.0.0",
+    "pandas>=2.0.0,<3.0.0",
+    "torch<2.6.0",
+    "yfinance>=0.2.54",
+]
 
 
 [dependency-groups]
@@ -23,6 +30,9 @@ docs = [
     "mkdocs-material>=9.6.16",
     "mkdocstrings>=0.30.0",
     "mkdocstrings-python>=1.16.12",
+]
+jupyter = [
+    "jupyter>=1.1.1",
 ]
 
 [tool.commitizen]
