@@ -10,7 +10,7 @@ dependencies = [
     "neuralprophet>=0.6.2",
     "numpy>=1.25.0,<2.0.0",
     "pandas>=2.0.0,<3.0.0",
-    "torch<2.6.0",
+    "torch<2.11.0",
     "yfinance>=0.2.54",
 ]
 
