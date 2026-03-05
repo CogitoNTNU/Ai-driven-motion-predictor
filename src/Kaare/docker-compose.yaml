@@ -1,0 +1,23 @@
+services:
+  paradedb:
+    image: paradedb/paradedb:latest
+    container_name: paradedb
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-motion_predictor}
+    env_file:
+      - ../../.env
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - paradedb_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-admin}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  paradedb_data:
