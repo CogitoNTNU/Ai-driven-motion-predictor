@@ -9,7 +9,6 @@ import asyncpg
 from Kaare.db import connection as db_connection
 from Kaare.db import migrations, repository
 from Kaare.models import MacroData, StockOHLCV
-from Kaare.providers.alphavantage import AlphaVantageProvider
 from Kaare.providers.yfinance_provider import YFinanceProvider
 
 logger = logging.getLogger(__name__)
@@ -36,15 +35,10 @@ class KaareClient:
             macro  = await client.get_macro_data(start, end)
 
     On every request the database is queried first. Missing dates are fetched
-    from AlphaVantage (primary) with yfinance as a fallback, then stored in
-    the database before returning.
-
-    Args:
-        alphavantage_api_key: Override the API key from the environment.
+    from yfinance, then stored in the database before returning.
     """
 
-    def __init__(self, alphavantage_api_key: str | None = None) -> None:
-        self._av = AlphaVantageProvider(api_key=alphavantage_api_key)
+    def __init__(self) -> None:
         self._yf = YFinanceProvider()
         self._pool: asyncpg.Pool | None = None
 
@@ -58,10 +52,9 @@ class KaareClient:
         await migrations.run_migrations(self._pool)
 
     async def close(self) -> None:
-        """Close the connection pool and HTTP clients."""
+        """Close the connection pool."""
         if self._pool:
             await self._pool.close()
-        await self._av.close()
 
     async def __aenter__(self) -> Self:
         await self.initialize()
@@ -100,11 +93,9 @@ class KaareClient:
         Returns:
             List of :class:`~Kaare.models.StockOHLCV` ordered by date ascending.
         """
-        # 1. Query cache
         cached = await repository.get_stock_ohlcv(self._db, symbol, start, end)
         cached_dates = {r.date for r in cached}
 
-        # 2. Determine missing business dates
         expected = _business_dates(start, end)
         missing = expected - cached_dates
 
@@ -112,45 +103,40 @@ class KaareClient:
             miss_start = min(missing)
             miss_end = max(missing)
             fetched: list[StockOHLCV] = []
-
-            # 3. Fetch missing data — AlphaVantage first, yfinance fallback
             try:
-                fetched = await self._av.get_stock_ohlcv(symbol, miss_start, miss_end)
-                if not fetched:
-                    raise ValueError("AlphaVantage returned no data")
+                fetched = await self._yf.get_stock_ohlcv(symbol, miss_start, miss_end)
             except Exception as exc:
-                logger.warning("AlphaVantage failed for %s: %s — falling back to yfinance", symbol, exc)
-                try:
-                    fetched = await self._yf.get_stock_ohlcv(symbol, miss_start, miss_end)
-                except Exception as yf_exc:
-                    logger.error("yfinance also failed for %s: %s", symbol, yf_exc)
+                logger.error("yfinance failed for %s: %s", symbol, exc)
 
-            # 4. Persist new rows
             if fetched:
                 await repository.insert_stock_ohlcv(self._db, fetched)
 
-        # 5. Re-query and return
         return await repository.get_stock_ohlcv(self._db, symbol, start, end)
 
     async def get_macro_data(
         self,
         start: datetime.date,
         end: datetime.date,
+        symbols: list[str] | None = None,
     ) -> list[MacroData]:
-        """Return macro data (gold, Treasury 10Y) in [start, end], fetching from upstream if needed.
+        """Return macro data (gold, Treasury 10Y, sentiment) in [start, end].
+
+        Gold and Treasury yields are fetched from yfinance for missing dates.
+        Sentiment is sourced from the ``daily_market_sentiment`` table, which is
+        populated by running the FinBERT pipeline (see :mod:`Kaare.pipeline`).
 
         Args:
             start: Inclusive start date.
             end: Inclusive end date.
+            symbols: Unused — kept for API compatibility. Sentiment now comes
+                from the pre-computed ``daily_market_sentiment`` table.
 
         Returns:
             List of :class:`~Kaare.models.MacroData` ordered by date ascending.
         """
-        # 1. Query cache
         cached = await repository.get_macro_data(self._db, start, end)
         cached_dates = {r.date for r in cached}
 
-        # 2. Determine missing business dates
         expected = _business_dates(start, end)
         missing = expected - cached_dates
 
@@ -158,39 +144,31 @@ class KaareClient:
             miss_start = min(missing)
             miss_end = max(missing)
 
-            # 3a. Fetch gold prices
             gold: dict[datetime.date, float] = {}
             try:
-                gold = await self._av.get_gold_prices(miss_start, miss_end)
-                if not gold:
-                    raise ValueError("AlphaVantage returned no gold data")
+                gold = await self._yf.get_gold_prices(miss_start, miss_end)
             except Exception as exc:
-                logger.warning("AlphaVantage gold failed: %s — falling back to yfinance", exc)
-                try:
-                    gold = await self._yf.get_gold_prices(miss_start, miss_end)
-                except Exception as yf_exc:
-                    logger.error("yfinance gold also failed: %s", yf_exc)
+                logger.error("yfinance gold failed: %s", exc)
 
-            # 3b. Fetch Treasury yields
             yields: dict[datetime.date, float] = {}
             try:
-                yields = await self._av.get_treasury_yields(miss_start, miss_end)
-                if not yields:
-                    raise ValueError("AlphaVantage returned no Treasury data")
+                yields = await self._yf.get_treasury_yields(miss_start, miss_end)
             except Exception as exc:
-                logger.warning("AlphaVantage Treasury failed: %s — falling back to yfinance", exc)
-                try:
-                    yields = await self._yf.get_treasury_yields(miss_start, miss_end)
-                except Exception as yf_exc:
-                    logger.error("yfinance Treasury also failed: %s", yf_exc)
+                logger.error("yfinance Treasury failed: %s", exc)
 
-            # 4. Merge into MacroData records and upsert
-            all_dates = set(gold) | set(yields) | missing
+            vix: dict[datetime.date, float] = {}
+            try:
+                vix = await self._yf.get_vix(miss_start, miss_end)
+            except Exception as exc:
+                logger.error("yfinance VIX failed: %s", exc)
+
+            all_dates = set(gold) | set(yields) | set(vix) | missing
             new_records = [
                 MacroData(
                     date=d,
                     gold_price=gold.get(d),
                     treasury_yield_10y=yields.get(d),
+                    vix=vix.get(d),
                 )
                 for d in sorted(all_dates)
                 if start <= d <= end
@@ -198,5 +176,7 @@ class KaareClient:
             if new_records:
                 await repository.upsert_macro_data(self._db, new_records)
 
-        # 5. Re-query and return
+        # Pull pre-computed sentiment from daily_market_sentiment into macro_data
+        await repository.sync_sentiment_to_macro(self._db, start, end)
+
         return await repository.get_macro_data(self._db, start, end)

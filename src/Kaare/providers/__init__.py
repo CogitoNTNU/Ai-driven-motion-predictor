@@ -1,1 +1,1 @@
-"""Data provider sub-package (AlphaVantage, yfinance)."""
+"""Data provider sub-package (yfinance)."""
