@@ -57,8 +57,8 @@ class AlphaVantageProvider(DataProvider):
         return data
 
     def _output_size(self, start: datetime.date, end: datetime.date) -> str:
-        delta = (end - start).days
-        return "compact" if delta <= _COMPACT_THRESHOLD_DAYS else "full"
+        days_ago = (datetime.date.today() - start).days
+        return "compact" if days_ago <= _COMPACT_THRESHOLD_DAYS else "full"
 
     async def get_stock_ohlcv(
         self,
@@ -66,7 +66,7 @@ class AlphaVantageProvider(DataProvider):
         start: datetime.date,
         end: datetime.date,
     ) -> list[StockOHLCV]:
-        """Fetch daily adjusted OHLCV data from AlphaVantage.
+        """Fetch daily OHLCV data from AlphaVantage.
 
         Args:
             symbol: Ticker symbol.
@@ -82,7 +82,7 @@ class AlphaVantageProvider(DataProvider):
         """
         data = await self._get(
             {
-                "function": "TIME_SERIES_DAILY_ADJUSTED",
+                "function": "TIME_SERIES_DAILY",
                 "symbol": symbol,
                 "outputsize": self._output_size(start, end),
             }
@@ -100,8 +100,8 @@ class AlphaVantageProvider(DataProvider):
                     open=float(values["1. open"]),
                     high=float(values["2. high"]),
                     low=float(values["3. low"]),
-                    close=float(values["5. adjusted close"]),
-                    volume=int(values["6. volume"]),
+                    close=float(values["4. close"]),
+                    volume=int(values["5. volume"]),
                 )
             )
         records.sort(key=lambda r: r.date)
