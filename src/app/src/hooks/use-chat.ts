@@ -2,7 +2,7 @@ import { useChat as useAIChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { useState } from "react";
 import type { UIMessage } from "ai";
-import type { Message, MessagePart } from "@/types/chat";
+import type { Message, MessagePart, TextPart } from "@/types/chat";
 
 interface UseChatOptions {
   api: string;
@@ -13,11 +13,11 @@ function transformMessages(aiMessages: UIMessage[]): Message[] {
     // Extract text content from text parts
     const textContent = msg.parts
       ?.filter((p) => {
-        const partType = (p as any).type;
+        const partType = (p as MessagePart).type;
         return partType === "text";
       })
       .map((p) => {
-        const part = p as any;
+        const part = p as TextPart;
         return part.text || "";
       })
       .join("") || "";

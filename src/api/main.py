@@ -15,7 +15,13 @@ from dotenv import load_dotenv
 from typing import Union
 
 from agents.graph import get_graph, AgentState
-from langchain_core.messages import AIMessage, ToolMessage
+from langchain_core.messages import (
+    AIMessage,
+    ToolMessage,
+    HumanMessage,
+    SystemMessage,
+    AnyMessage,
+)
 
 # Load environment variables
 load_dotenv()
@@ -54,12 +60,9 @@ class ChatMessage(BaseModel):
         if self.parts:
             for part in self.parts:
                 if isinstance(part, dict) and part.get("type") == "text":
-                    print(part.get("text", ""))
                     return part.get("text", "")
-                elif hasattr(part, "type") and part.type == "text":
-                    print(part.get("text", ""))
-
-                    return getattr(part, "text", "")
+                elif hasattr(part, "type") and str(getattr(part, "type")) == "text":
+                    return str(getattr(part, "text", ""))
 
         return ""
 
@@ -102,24 +105,44 @@ app.add_middleware(
 )
 
 
+def convert_dict_to_message(msg_dict: dict) -> AnyMessage:
+    """Convert a dict message to proper LangChain message object."""
+    role = msg_dict.get("role", "user")
+    content = msg_dict.get("content", "")
+
+    if role == "user":
+        return HumanMessage(content=content)
+    elif role == "assistant":
+        return AIMessage(content=content)
+    elif role == "system":
+        return SystemMessage(content=content)
+    else:
+        # Default to HumanMessage for unknown roles
+        return HumanMessage(content=content)
+
+
 async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, None]:
     """Stream agent responses using Vercel AI SDK Data Stream Protocol.
 
     Uses the Server-Sent Events (SSE) format with proper Data Stream Protocol headers.
     Text content is streamed using text-start/text-delta/text-end pattern.
     Charts are sent as data-chart parts after text completes.
+    Tool calls are streamed as tool-call and tool-result parts.
 
     Stream format: SSE with "data: " prefix and JSON payload
     - text-start: Begins a text block with unique ID
     - text-delta: Incremental text content
     - text-end: Completes the text block
+    - tool-call: Tool invocation with name, args, and agent name
+    - tool-result: Tool execution result
     - data-chart: Chart data as custom data part
     - finish: Message completion signal
     """
     graph = get_graph()
 
-    # Prepare the input state
-    input_state: AgentState = {"messages": messages, "charts": []}
+    # Prepare the input state - convert dict messages to LangChain message objects
+    langchain_messages = [convert_dict_to_message(msg) for msg in messages]
+    input_state: AgentState = {"messages": langchain_messages, "charts": []}
 
     # Track tool calls and their outputs
     tool_calls: dict = {}
@@ -156,26 +179,73 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                     }
                     yield f"data: {json.dumps(delta_event)}\n\n"
 
-            # PRIORITY 2: Track tool calls for later processing
+            # PRIORITY 2: Stream tool calls as they are initiated
             if hasattr(message_chunk, "tool_calls") and message_chunk.tool_calls:
                 for tc in message_chunk.tool_calls:
                     tool_id = tc.get("id") or str(uuid.uuid4())
+                    tool_name = tc.get("name", "unknown")
+                    tool_args = tc.get("args", {})
+
+                    # Store tool call for result matching
                     tool_calls[tool_id] = {
-                        "name": tc.get("name", "unknown"),
-                        "arguments": tc.get("args", {}),
+                        "name": tool_name,
+                        "arguments": tool_args,
                     }
+
+                    # Extract only parameter names (not full values) to reduce verbosity
+                    param_names = list(tool_args.keys()) if tool_args else []
+
+                    # Try to determine agent name from metadata
+                    # Look for 'lanes' or 'agent' in metadata
+                    agent_name = "assistant"
+                    if isinstance(metadata, dict):
+                        if "lanes" in metadata and isinstance(metadata["lanes"], list):
+                            lanes = metadata["lanes"]
+                            agent_name = lanes[-1] if lanes else "assistant"
+                        elif "agent" in metadata:
+                            agent_name = str(metadata["agent"])
+                        elif metadata.get("langgraph_node"):
+                            agent_name = str(metadata["langgraph_node"])
+
+                    # Stream tool-call event with data- prefix for Data Stream Protocol
+                    tool_call_event = {
+                        "type": "data-tool-call",
+                        "data": {
+                            "toolCallId": tool_id,
+                            "toolName": tool_name,
+                            "toolArgs": param_names,  # Just parameter names
+                            "agentName": agent_name,
+                        },
+                    }
+                    yield f"data: {json.dumps(tool_call_event)}\n\n"
 
         # PRIORITY 3: Stream tool outputs (charts and other results)
         if isinstance(message_chunk, ToolMessage):
             tool_id = getattr(message_chunk, "tool_call_id", None) or str(uuid.uuid4())
+            tool_content = message_chunk.content
 
-            # Get artifact if available (from @tool(response_format="content_and_artifact"))
-            artifact = getattr(message_chunk, "artifact", None)
+            if tool_id not in streamed_tool_outputs:
+                streamed_tool_outputs.add(tool_id)
 
-            if artifact and isinstance(artifact, dict) and artifact.get("chart_id"):
-                if tool_id not in streamed_tool_outputs:
-                    streamed_tool_outputs.add(tool_id)
+                # Get tool call info for the result
+                tool_call_info = tool_calls.get(tool_id, {"name": "unknown"})
+                tool_name = tool_call_info.get("name", "unknown")
 
+                # Stream tool-result event with data- prefix for Data Stream Protocol
+                tool_result_event = {
+                    "type": "data-tool-result",
+                    "data": {
+                        "toolCallId": tool_id,
+                        "toolName": tool_name,
+                        "result": tool_content,
+                    },
+                }
+                yield f"data: {json.dumps(tool_result_event)}\n\n"
+
+                # Get artifact if available (from @tool(response_format="content_and_artifact"))
+                artifact = getattr(message_chunk, "artifact", None)
+
+                if artifact and isinstance(artifact, dict) and artifact.get("chart_id"):
                     # End text block before sending chart
                     if has_text:
                         end_event = {"type": "text-end", "id": text_id}
@@ -272,8 +342,11 @@ async def chat_sync(request: ChatRequest):
             for msg in request.messages
         ]
 
+        # Convert to LangChain message objects
+        langchain_messages = [convert_dict_to_message(msg) for msg in messages]
+
         # Invoke synchronously with custom state
-        input_state: AgentState = {"messages": messages, "charts": []}
+        input_state: AgentState = {"messages": langchain_messages, "charts": []}
         result = await graph.ainvoke(input_state)
 
         # Extract the final message

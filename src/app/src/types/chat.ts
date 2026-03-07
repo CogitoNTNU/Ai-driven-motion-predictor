@@ -38,9 +38,30 @@ export interface DataChartPart {
 }
 
 /**
+ * Tool call start part - when agent initiates tool call
+ */
+export interface ToolCallPart {
+  type: "data-tool-call";
+  toolCallId: string;
+  toolName: string;
+  toolArgs: string[];
+  agentName?: string;
+}
+
+/**
+ * Tool call result part - when tool execution completes
+ */
+export interface ToolCallResultPart {
+  type: "data-tool-result";
+  toolCallId: string;
+  toolName: string;
+  result: string | object;
+}
+
+/**
  * AI SDK v5 Message Part Types
  */
-export type MessagePart = TextPart | DataChartPart;
+export type MessagePart = TextPart | DataChartPart | ToolCallPart | ToolCallResultPart;
 
 /**
  * AI SDK v5 Message structure
@@ -71,7 +92,21 @@ export function isTextPart(part: MessagePart): part is TextPart {
  * Type guard specifically for stock growth chart parts
  */
 export function isStockGrowthToolPart(part: MessagePart): part is DataChartPart {
-  return part.type === "data-chart" && (part as any).data?.tool_name === "get_stock_growth";
+  return part.type === "data-chart" && (part as DataChartPart).data?.tool_name === "get_stock_growth";
+}
+
+/**
+ * Type guard to check if a part is a tool-call part
+ */
+export function isToolCallPart(part: MessagePart): part is ToolCallPart {
+  return part.type === "data-tool-call";
+}
+
+/**
+ * Type guard to check if a part is a tool-result part
+ */
+export function isToolCallResultPart(part: MessagePart): part is ToolCallResultPart {
+  return part.type === "data-tool-result";
 }
 
 /**

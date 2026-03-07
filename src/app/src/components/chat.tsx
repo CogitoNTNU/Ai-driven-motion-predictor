@@ -7,6 +7,7 @@ import { Send, Bot, User, Square, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useChat } from "@/hooks/use-chat";
 import { ChartRenderer } from "@/components/charts/ChartRenderer";
+import { ToolCallRenderer } from "@/components/tool-call";
 import { Streamdown } from "streamdown";
 import { code } from "@streamdown/code";
 import { isChartPart, type ChartData, type Message } from "@/types/chat";
@@ -70,11 +71,16 @@ export function Chat() {
             const charts = message.role === "assistant"
               ? extractChartsFromMessage(message)
               : [];
-            
+
+            // Check if message has tool call related parts (data-tool-call or data-tool-result)
+            const hasToolCalls = message.role === "assistant" && message.parts
+              ? message.parts.some((p) => p.type === "data-tool-call" || p.type === "data-tool-result")
+              : false;
+
             // Check if this is the last assistant message and loading
-            const isLastAssistantMessage = 
-              message.role === "assistant" && 
-              index === messages.length - 1 && 
+            const isLastAssistantMessage =
+              message.role === "assistant" &&
+              index === messages.length - 1 &&
               isLoading;
 
             return (
@@ -127,6 +133,13 @@ export function Chat() {
                     )}
                   </div>
                 </div>
+
+                {/* Tool calls - rendered before charts for assistant messages */}
+                {hasToolCalls && (
+                  <div className="ml-11 mt-4">
+                    <ToolCallRenderer parts={message.parts || []} />
+                  </div>
+                )}
 
                 {/* Charts from data-chart parts - rendered at end of assistant messages */}
                 {charts.length > 0 && (
