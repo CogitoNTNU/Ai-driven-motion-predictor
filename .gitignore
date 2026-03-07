@@ -241,7 +241,6 @@ jspm_packages/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
 
 # next.js build output
 .next
@@ -252,3 +251,4 @@ lerna-debug.log
 # System Files
 .DS_Store
 Thumbs.db
+*.ckpt*
