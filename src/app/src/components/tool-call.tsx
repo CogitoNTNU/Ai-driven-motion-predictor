@@ -116,9 +116,9 @@ function ToolCallCard({ toolCall }: { toolCall: ToolCallState }) {
 
         {toolCall.toolArgs.length > 0 && (
           <div className="flex flex-wrap gap-1">
-            {toolCall.toolArgs.map((arg) => (
+            {toolCall.toolArgs.map((arg, index) => (
               <code
-                key={arg}
+                key={`${arg}-${index}`}
                 className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono text-muted-foreground"
               >
                 {arg}
