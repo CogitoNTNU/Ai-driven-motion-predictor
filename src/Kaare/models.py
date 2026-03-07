@@ -118,6 +118,27 @@ class DailyMarketSentiment:
 
 
 @dataclass
+class NewsSentimentResult:
+    """FinBERT sentiment result for a stock ticker over a date range.
+
+    Attributes:
+        symbol: Ticker symbol that was analysed.
+        start: Inclusive start date of the news window.
+        end: Inclusive end date of the news window.
+        article_count: Number of articles scored.
+        avg_score: Average FinBERT net sentiment (positive - negative) in [-1.0, 1.0].
+        daily_scores: Per-date average sentiment scores.
+    """
+
+    symbol: str
+    start: datetime.date
+    end: datetime.date
+    article_count: int
+    avg_score: float
+    daily_scores: dict[datetime.date, float] = field(default_factory=dict)
+
+
+@dataclass
 class DailyTickerSentiment:
     """Aggregated per-ticker sentiment for a single trading day.
 
