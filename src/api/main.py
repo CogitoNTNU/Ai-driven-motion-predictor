@@ -10,8 +10,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from dotenv import load_dotenv
+from typing import Union
 
 from agents.graph import get_graph, AgentState
 from langchain_core.messages import AIMessageChunk, ToolMessage
@@ -20,17 +21,52 @@ from langchain_core.messages import AIMessageChunk, ToolMessage
 load_dotenv()
 
 
-class ChatMessage(BaseModel):
-    """Chat message model."""
+class TextPart(BaseModel):
+    """Text part in AI SDK v5 UIMessage format."""
 
-    role: str
-    content: str
+    type: str = Field(default="text", description="Part type - should be 'text'")
+    text: str = Field(description="Text content")
+
+
+class ChatMessage(BaseModel):
+    """Chat message model supporting AI SDK v5 UIMessage format.
+
+    Accepts messages with either:
+    - 'content' field (legacy format)
+    - 'parts' field (AI SDK v5 UIMessage format)
+    """
+
+    role: str = Field(description="Message role: 'user', 'assistant', or 'system'")
+    content: Union[str, None] = Field(
+        default=None, description="Text content (legacy format)"
+    )
+    parts: Union[list[dict], None] = Field(
+        default=None, description="Message parts in AI SDK v5 format"
+    )
+
+    def get_text_content(self) -> str:
+        """Extract text content from either format."""
+        # If content field is provided, use it (legacy format)
+        if self.content is not None:
+            return self.content
+
+        # If parts field is provided, extract text from first text part (AI SDK v5 format)
+        if self.parts:
+            for part in self.parts:
+                if isinstance(part, dict) and part.get("type") == "text":
+                    return part.get("text", "")
+                elif hasattr(part, "type") and part.type == "text":
+                    return getattr(part, "text", "")
+
+        return ""
 
 
 class ChatRequest(BaseModel):
-    """Chat request model."""
+    """Chat request model supporting AI SDK v5 UIMessage format."""
 
-    messages: list[ChatMessage]
+    messages: list[ChatMessage] = Field(
+        description="List of messages in AI SDK v5 UIMessage format or legacy format"
+    )
 
 
 @asynccontextmanager
@@ -178,8 +214,10 @@ async def chat(request: ChatRequest):
     """
     try:
         # Convert messages to the format expected by LangGraph
+        # Supports both AI SDK v5 UIMessage format (with parts) and legacy format (with content)
         messages = [
-            {"role": msg.role, "content": msg.content} for msg in request.messages
+            {"role": msg.role, "content": msg.get_text_content()}
+            for msg in request.messages
         ]
 
         # Return streaming response
@@ -205,7 +243,8 @@ async def chat_sync(request: ChatRequest):
     try:
         graph = get_graph()
         messages = [
-            {"role": msg.role, "content": msg.content} for msg in request.messages
+            {"role": msg.role, "content": msg.get_text_content()}
+            for msg in request.messages
         ]
 
         # Invoke synchronously with custom state
