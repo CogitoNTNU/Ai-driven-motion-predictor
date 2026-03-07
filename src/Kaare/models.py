@@ -42,6 +42,7 @@ class MacroData:
     date: datetime.date
     gold_price: float | None
     treasury_yield_10y: float | None
+    vix: float | None = None
     news_sentiment_score: float | None = None
 
 

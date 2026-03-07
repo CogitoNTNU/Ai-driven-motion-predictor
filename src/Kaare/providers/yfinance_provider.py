@@ -146,3 +146,31 @@ class YFinanceProvider(DataProvider):
             except (KeyError, ValueError):
                 pass
         return result
+
+    async def get_vix(
+        self,
+        start: datetime.date,
+        end: datetime.date,
+    ) -> dict[datetime.date, float]:
+        """Fetch daily VIX closing values via yfinance (ticker ``^VIX``).
+
+        Args:
+            start: Inclusive start date.
+            end: Inclusive end date.
+
+        Returns:
+            Mapping of date → VIX closing value.
+        """
+        df = await self._download("^VIX", start, end)
+        if df.empty:
+            return {}
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = df.columns.get_level_values(0)
+        result: dict[datetime.date, float] = {}
+        for idx, row in df.iterrows():
+            date = idx.date() if hasattr(idx, "date") else idx
+            try:
+                result[date] = float(row["Close"])
+            except (KeyError, ValueError):
+                pass
+        return result

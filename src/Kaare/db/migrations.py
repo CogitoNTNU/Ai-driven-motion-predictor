@@ -28,6 +28,11 @@ ALTER TABLE macro_data
     ADD COLUMN IF NOT EXISTS news_sentiment_score DOUBLE PRECISION;
 """
 
+_ADD_VIX_COLUMN = """
+ALTER TABLE macro_data
+    ADD COLUMN IF NOT EXISTS vix DOUBLE PRECISION;
+"""
+
 _CREATE_RAW_NEWS = """
 CREATE TABLE IF NOT EXISTS raw_news (
     id              BIGSERIAL PRIMARY KEY,
@@ -108,6 +113,7 @@ async def run_migrations(pool: asyncpg.Pool) -> None:
         await conn.execute(_CREATE_STOCK_OHLCV)
         await conn.execute(_CREATE_MACRO_DATA)
         await conn.execute(_ADD_SENTIMENT_COLUMN)
+        await conn.execute(_ADD_VIX_COLUMN)
         await conn.execute(_CREATE_RAW_NEWS)
         await conn.execute(_CREATE_RAW_NEWS_INDEXES)
         await conn.execute(_CREATE_ARTICLE_SENTIMENT)

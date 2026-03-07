@@ -89,7 +89,7 @@ async def get_macro_data(
         List of :class:`~Kaare.models.MacroData` ordered by date ascending.
     """
     query = """
-        SELECT date, gold_price, treasury_yield_10y, news_sentiment_score
+        SELECT date, gold_price, treasury_yield_10y, vix, news_sentiment_score
         FROM macro_data
         WHERE date BETWEEN $1 AND $2
         ORDER BY date
@@ -101,6 +101,7 @@ async def get_macro_data(
             date=row["date"],
             gold_price=row["gold_price"],
             treasury_yield_10y=row["treasury_yield_10y"],
+            vix=row["vix"],
             news_sentiment_score=row["news_sentiment_score"],
         )
         for row in rows
@@ -170,17 +171,18 @@ async def upsert_macro_data(
     if not records:
         return
     query = """
-        INSERT INTO macro_data (date, gold_price, treasury_yield_10y, news_sentiment_score)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO macro_data (date, gold_price, treasury_yield_10y, vix, news_sentiment_score)
+        VALUES ($1, $2, $3, $4, $5)
         ON CONFLICT (date) DO UPDATE
             SET gold_price            = COALESCE(EXCLUDED.gold_price, macro_data.gold_price),
                 treasury_yield_10y    = COALESCE(EXCLUDED.treasury_yield_10y, macro_data.treasury_yield_10y),
+                vix                   = COALESCE(EXCLUDED.vix, macro_data.vix),
                 news_sentiment_score  = COALESCE(EXCLUDED.news_sentiment_score, macro_data.news_sentiment_score)
     """
     async with pool.acquire() as conn:
         await conn.executemany(
             query,
-            [(r.date, r.gold_price, r.treasury_yield_10y, r.news_sentiment_score) for r in records],
+            [(r.date, r.gold_price, r.treasury_yield_10y, r.vix, r.news_sentiment_score) for r in records],
         )
 
 

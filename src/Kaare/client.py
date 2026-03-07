@@ -156,12 +156,19 @@ class KaareClient:
             except Exception as exc:
                 logger.error("yfinance Treasury failed: %s", exc)
 
-            all_dates = set(gold) | set(yields) | missing
+            vix: dict[datetime.date, float] = {}
+            try:
+                vix = await self._yf.get_vix(miss_start, miss_end)
+            except Exception as exc:
+                logger.error("yfinance VIX failed: %s", exc)
+
+            all_dates = set(gold) | set(yields) | set(vix) | missing
             new_records = [
                 MacroData(
                     date=d,
                     gold_price=gold.get(d),
                     treasury_yield_10y=yields.get(d),
+                    vix=vix.get(d),
                 )
                 for d in sorted(all_dates)
                 if start <= d <= end
