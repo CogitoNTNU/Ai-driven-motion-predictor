@@ -1,5 +1,5 @@
 /**
- * Chart data structure received from the backend via tool invocation
+ * Chart data structure received from the backend via data-chart parts
  */
 export interface ChartData {
   tool_name: string;
@@ -22,13 +22,7 @@ export interface ChartData {
 }
 
 /**
- * AI SDK v5 Message Part Types
- * Tool invocations are the primary way charts are transferred from sub-agents
- */
-export type MessagePart = TextPart | TextDeltaPart | ToolInvocationPart | FinishPart;
-
-/**
- * Text content from the LLM (complete text part)
+ * Text content part from the LLM
  */
 export interface TextPart {
   type: "text";
@@ -36,50 +30,20 @@ export interface TextPart {
 }
 
 /**
- * Text delta part during streaming (incremental text from the LLM)
+ * Custom data part for charts (from Data Stream Protocol)
  */
-export interface TextDeltaPart {
-  type: "text-delta";
-  text: string;
+export interface DataChartPart {
+  type: "data-chart";
+  data: ChartData;
 }
 
 /**
- * Tool invocation part for AI SDK v5
- * Charts are transferred as tool outputs from sub-agents
+ * AI SDK v5 Message Part Types
  */
-export interface ToolInvocationPart {
-  type: `tool-${string}`;
-  toolCallId: string;
-  toolName: string;
-  state: "input-available" | "output-available" | "output-error";
-  input?: Record<string, unknown>;
-  output?: ChartData;
-  errorText?: string;
-}
+export type MessagePart = TextPart | DataChartPart;
 
 /**
- * Specific tool type for get_stock_growth tool
- */
-export type StockGrowthToolPart = ToolInvocationPart & {
-  type: "tool-get_stock_growth";
-  toolName: "get_stock_growth";
-  output?: ChartData;
-};
-
-/**
- * Finish signal from the stream
- */
-export interface FinishPart {
-  type: "finish";
-  finishReason: "stop" | "length" | "error";
-  usage?: {
-    promptTokens: number;
-    completionTokens: number;
-  };
-}
-
-/**
- * AI SDK v5 Message structure with parts
+ * AI SDK v5 Message structure
  */
 export interface Message {
   id: string;
@@ -90,10 +54,10 @@ export interface Message {
 }
 
 /**
- * Type guard to check if a part is a tool invocation with chart output
+ * Type guard to check if a part is a data-chart part
  */
-export function isStockGrowthToolPart(part: MessagePart): part is StockGrowthToolPart {
-  return part.type === "tool-get_stock_growth" && part.state === "output-available";
+export function isChartPart(part: MessagePart): part is DataChartPart {
+  return part.type === "data-chart";
 }
 
 /**
@@ -104,7 +68,14 @@ export function isTextPart(part: MessagePart): part is TextPart {
 }
 
 /**
- * Legacy SSE event types (for backward compatibility during migration)
+ * Type guard specifically for stock growth chart parts
+ */
+export function isStockGrowthToolPart(part: MessagePart): part is DataChartPart {
+  return part.type === "data-chart" && (part as any).data?.tool_name === "get_stock_growth";
+}
+
+/**
+ * Legacy SSE event types (for backward compatibility)
  */
 export type SSEEventType = "token" | "chart" | "done";
 

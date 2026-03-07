@@ -103,12 +103,18 @@ app.add_middleware(
 
 
 async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, None]:
-    """Stream agent responses in AI SDK v5 UI Message Stream format.
+    """Stream agent responses using Vercel AI SDK Data Stream Protocol.
 
-    Uses tool invocation parts to transfer chart data from sub-agents to frontend.
-    Charts are sent as tool outputs that the frontend renders at the end of messages.
+    Uses the Server-Sent Events (SSE) format with proper Data Stream Protocol headers.
+    Text content is streamed using text-start/text-delta/text-end pattern.
+    Charts are sent as data-chart parts after text completes.
 
-    Stream order: Text chunks → Tool invocations (input) → Tool outputs → Finish signal
+    Stream format: SSE with "data: " prefix and JSON payload
+    - text-start: Begins a text block with unique ID
+    - text-delta: Incremental text content
+    - text-end: Completes the text block
+    - data-chart: Chart data as custom data part
+    - finish: Message completion signal
     """
     graph = get_graph()
 
@@ -118,32 +124,39 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
     # Track tool calls and their outputs
     tool_calls: dict = {}
     streamed_tool_outputs: set = set()
-    text_chunks_sent: set = set()  # Track which text chunks we've already sent
+    text_chunks_sent: set = set()
+
+    # Generate unique IDs for stream parts
+    text_id = str(uuid.uuid4())
+    has_text = False
 
     # Stream with 'messages' mode to get LLM tokens and tool results
     async for chunk in graph.astream(input_state, stream_mode="messages"):
         message_chunk, metadata = chunk
 
-        # PRIORITY 1: Stream text from AI messages (highest priority - gets sent first)
-        # Note: stream_mode="messages" returns complete AIMessage objects, not streaming chunks
-        # But we still check for both AIMessage and AIMessageChunk for flexibility
+        # PRIORITY 1: Stream text from AI messages
         if isinstance(message_chunk, AIMessage):
-            # Stream text content
             content = message_chunk.content
             if content and isinstance(content, str) and content.strip():
-                # Create unique identifier for this text to avoid duplicates (important for complete messages)
                 chunk_id = id(message_chunk)
                 if chunk_id not in text_chunks_sent:
                     text_chunks_sent.add(chunk_id)
 
-                    # Send as AI SDK v5 text part
-                    text_data = {
-                        "type": "text",
-                        "text": content,
-                    }
-                    yield f"{json.dumps(text_data)}\n"
+                    # Start text block if not already started
+                    if not has_text:
+                        has_text = True
+                        start_event = {"type": "text-start", "id": text_id}
+                        yield f"data: {json.dumps(start_event)}\n\n"
 
-            # PRIORITY 2: Track tool calls (but don't yield yet - wait for outputs)
+                    # Send text content in delta format
+                    delta_event = {
+                        "type": "text-delta",
+                        "id": text_id,
+                        "delta": content,
+                    }
+                    yield f"data: {json.dumps(delta_event)}\n\n"
+
+            # PRIORITY 2: Track tool calls for later processing
             if hasattr(message_chunk, "tool_calls") and message_chunk.tool_calls:
                 for tc in message_chunk.tool_calls:
                     tool_id = tc.get("id") or str(uuid.uuid4())
@@ -151,18 +164,6 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                         "name": tc.get("name", "unknown"),
                         "arguments": tc.get("args", {}),
                     }
-
-                    # Only send tool invocation if it's not a handoff (not transfer_back_to_supervisor)
-                    if tc.get("name") != "transfer_back_to_supervisor":
-                        # Send tool invocation start (input-available)
-                        tool_data = {
-                            "type": f"tool-{tc.get('name', 'unknown')}",
-                            "toolCallId": tool_id,
-                            "toolName": tc.get("name", "unknown"),
-                            "state": "input-available",
-                            "input": tc.get("args", {}),
-                        }
-                        yield f"{json.dumps(tool_data)}\n"
 
         # PRIORITY 3: Stream tool outputs (charts and other results)
         if isinstance(message_chunk, ToolMessage):
@@ -175,26 +176,33 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                 if tool_id not in streamed_tool_outputs:
                     streamed_tool_outputs.add(tool_id)
 
-                    # Send tool invocation with output (output-available)
-                    tool_data = {
-                        "type": f"tool-{artifact.get('tool_name', 'get_stock_growth')}",
-                        "toolCallId": tool_id,
-                        "toolName": artifact.get("tool_name", "get_stock_growth"),
-                        "state": "output-available",
-                        "output": artifact,
+                    # End text block before sending chart
+                    if has_text:
+                        end_event = {"type": "text-end", "id": text_id}
+                        yield f"data: {json.dumps(end_event)}\n\n"
+                        has_text = False
+
+                    # Send chart data as custom data part
+                    chart_event = {
+                        "type": "data-chart",
+                        "data": artifact,
                     }
-                    yield f"{json.dumps(tool_data)}\n"
+                    yield f"data: {json.dumps(chart_event)}\n\n"
+
+    # End text block if still open
+    if has_text:
+        end_event = {"type": "text-end", "id": text_id}
+        yield f"data: {json.dumps(end_event)}\n\n"
 
     # Send finish signal
-    finish_data = {
+    finish_event = {
         "type": "finish",
         "finishReason": "stop",
-        "usage": {
-            "promptTokens": 0,
-            "completionTokens": 0,
-        },
     }
-    yield f"{json.dumps(finish_data)}\n"
+    yield f"data: {json.dumps(finish_event)}\n\n"
+
+    # Send stream termination marker
+    yield "data: [DONE]\n\n"
 
 
 @app.get("/")
@@ -236,7 +244,7 @@ async def chat(request: ChatRequest):
             for msg in request.messages
         ]
 
-        # Return streaming response
+        # Return streaming response with Data Stream Protocol header
         return StreamingResponse(
             stream_agent_response(messages),
             media_type="text/event-stream",
@@ -244,6 +252,7 @@ async def chat(request: ChatRequest):
                 "Cache-Control": "no-cache",
                 "Connection": "keep-alive",
                 "X-Accel-Buffering": "no",  # Disable nginx buffering
+                "x-vercel-ai-ui-message-stream": "v1",  # Data Stream Protocol header
             },
         )
 

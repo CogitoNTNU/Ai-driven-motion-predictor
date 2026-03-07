@@ -10,22 +10,18 @@ interface UseChatOptions {
 
 function transformMessages(aiMessages: UIMessage[]): Message[] {
   return aiMessages.map((msg) => {
-    // Accumulate text from both "text" and "text-delta" parts during streaming
-    // AI SDK v5 streams text in text-delta parts and accumulates them into a text part
+    // Extract text content from text parts
     const textContent = msg.parts
       ?.filter((p) => {
-        // Accept both the typed "text" parts and streaming "text-delta" parts
-        // (text-delta is sent during streaming but may not be in type definitions)
         const partType = (p as any).type;
-        return partType === "text" || partType === "text-delta";
+        return partType === "text";
       })
       .map((p) => {
-        // Handle both TextPart and TextDeltaPart types
         const part = p as any;
         return part.text || "";
       })
       .join("") || "";
-    
+
     return {
       id: msg.id,
       role: msg.role as "user" | "assistant" | "system",
@@ -55,7 +51,7 @@ export function useChat(options: UseChatOptions) {
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!input.trim()) return;
-    
+
     await sendMessage({ text: input });
     setInput("");
   };

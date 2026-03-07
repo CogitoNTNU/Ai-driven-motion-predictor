@@ -7,19 +7,18 @@ import { Send, Loader2, Bot, User, Square, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useChat } from "@/hooks/use-chat";
 import { ChartRenderer } from "@/components/charts/ChartRenderer";
-import { isStockGrowthToolPart, type ChartData, type Message } from "@/types/chat";
+import { isChartPart, type ChartData, type Message } from "@/types/chat";
 
 /**
- * Extract chart data from tool invocation parts in a message.
- * Charts are sent from sub-agents via tool outputs in AI SDK v5 format.
+ * Extract chart data from data-chart parts in a message.
+ * Charts are sent from the backend via data-chart parts in the Data Stream Protocol.
  */
 function extractChartsFromMessage(message: Message): ChartData[] {
   if (!message.parts || message.parts.length === 0) return [];
-  
+
   return message.parts
-    .filter(isStockGrowthToolPart)
-    .map((part) => part.output)
-    .filter((output): output is ChartData => output !== undefined);
+    .filter(isChartPart)
+    .map((part) => part.data);
 }
 
 export function Chat() {
@@ -57,18 +56,18 @@ export function Chat() {
               <Bot className="mb-4 h-12 w-12 opacity-20" />
               <p className="text-lg font-medium">Welcome!</p>
               <p className="max-w-sm">
-                    Ask me about stock growth, like "What's Apple's growth from January
+                Ask me about stock growth, like "What's Apple's growth from January
                 1 to February 1, 2026?"
               </p>
             </div>
           )}
 
           {messages.map((message) => {
-            // Extract charts from tool invocations for assistant messages
-            const charts = message.role === "assistant" 
-              ? extractChartsFromMessage(message) 
+            // Extract charts from data-chart parts for assistant messages
+            const charts = message.role === "assistant"
+              ? extractChartsFromMessage(message)
               : [];
-            
+
             return (
               <div key={message.id}>
                 <div
@@ -111,7 +110,7 @@ export function Chat() {
                   </div>
                 </div>
 
-                {/* Charts from tool invocations - rendered at end of assistant messages */}
+                {/* Charts from data-chart parts - rendered at end of assistant messages */}
                 {charts.length > 0 && (
                   <div className="ml-11 mt-4 space-y-4">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -137,22 +136,22 @@ export function Chat() {
         onSubmit={handleSubmit}
         className="flex items-center gap-2 border-t pt-4"
       >
-<Input
-            placeholder="Ask about stock growth..."
-            value={input || ""}
-            onChange={handleInputChange}
-            disabled={isLoading}
-            className="flex-1"
-          />
-          {isLoading ? (
-            <Button type="button" variant="outline" size="icon" onClick={stop}>
-              <Square className="h-4 w-4" />
-            </Button>
-          ) : (
-            <Button type="submit" size="icon" disabled={!input?.trim()}>
-              <Send className="h-4 w-4" />
-            </Button>
-          )}
+        <Input
+          placeholder="Ask about stock growth..."
+          value={input || ""}
+          onChange={handleInputChange}
+          disabled={isLoading}
+          className="flex-1"
+        />
+        {isLoading ? (
+          <Button type="button" variant="outline" size="icon" onClick={stop}>
+            <Square className="h-4 w-4" />
+          </Button>
+        ) : (
+          <Button type="submit" size="icon" disabled={!input?.trim()}>
+            <Send className="h-4 w-4" />
+          </Button>
+        )}
       </form>
     </div>
   );
