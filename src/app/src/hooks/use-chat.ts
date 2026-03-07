@@ -1,4 +1,6 @@
 import { useChat as useAIChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
+import { useState } from "react";
 import type { UIMessage } from "ai";
 import type { Message, MessagePart } from "@/types/chat";
 
@@ -6,46 +8,59 @@ interface UseChatOptions {
   api: string;
 }
 
-/**
- * Transform AI SDK UIMessages to our custom Message format.
- * The AI SDK v5 handles tool invocations as message parts automatically.
- */
 function transformMessages(aiMessages: UIMessage[]): Message[] {
-  return aiMessages.map((msg) => ({
-    id: msg.id,
-    role: msg.role as "user" | "assistant" | "system",
-    content: typeof msg.content === "string" ? msg.content : "",
-    parts: (msg.parts || []) as MessagePart[],
-    createdAt: msg.createdAt?.getTime() ?? Date.now(),
-  }));
+  return aiMessages.map((msg) => {
+    const textPart = msg.parts?.find((p) => p.type === "text");
+    const content = textPart?.type === "text" ? textPart.text : "";
+    
+    return {
+      id: msg.id,
+      role: msg.role as "user" | "assistant" | "system",
+      content,
+      parts: (msg.parts || []) as MessagePart[],
+      createdAt: Date.now(),
+    };
+  });
 }
 
 export function useChat(options: UseChatOptions) {
+  const [input, setInput] = useState("");
+
   const {
     messages: aiMessages,
+    sendMessage,
+    status,
+    stop,
+  } = useAIChat({
+    transport: new DefaultChatTransport({
+      api: options.api,
+    }),
+  });
+
+  const messages = transformMessages(aiMessages);
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!input.trim()) return;
+    
+    await sendMessage({ text: input });
+    setInput("");
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  };
+
+  const isLoading = status === "submitted" || status === "streaming";
+
+  return {
+    messages,
     input,
     handleInputChange,
     handleSubmit,
     isLoading,
-    append,
-    stop,
-  } = useAIChat({
-    api: options.api,
-    // Enable experimental features for tool invocations if needed
-    experimental_throttle: 50,
-  });
-
-  // Transform AI SDK messages to our custom format with proper parts
-  const messages = transformMessages(aiMessages);
-
-  return {
-    messages,
-    input: input ?? "",
-    handleInputChange,
-    handleSubmit,
-    isLoading,
-    append: async (message: Parameters<typeof append>[0]) => {
-      await append(message);
+    append: async (message: Parameters<typeof sendMessage>[0]) => {
+      await sendMessage(message);
     },
     stop,
   };
