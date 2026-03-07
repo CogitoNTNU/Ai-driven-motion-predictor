@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 from typing import Union
 
 from agents.graph import get_graph, AgentState
-from langchain_core.messages import AIMessageChunk, ToolMessage
+from langchain_core.messages import AIMessage, ToolMessage
 
 # Load environment variables
 load_dotenv()
@@ -54,8 +54,11 @@ class ChatMessage(BaseModel):
         if self.parts:
             for part in self.parts:
                 if isinstance(part, dict) and part.get("type") == "text":
+                    print(part.get("text", ""))
                     return part.get("text", "")
                 elif hasattr(part, "type") and part.type == "text":
+                    print(part.get("text", ""))
+
                     return getattr(part, "text", "")
 
         return ""
@@ -104,6 +107,8 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
 
     Uses tool invocation parts to transfer chart data from sub-agents to frontend.
     Charts are sent as tool outputs that the frontend renders at the end of messages.
+
+    Stream order: Text chunks → Tool invocations (input) → Tool outputs → Finish signal
     """
     graph = get_graph()
 
@@ -113,14 +118,32 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
     # Track tool calls and their outputs
     tool_calls: dict = {}
     streamed_tool_outputs: set = set()
+    text_chunks_sent: set = set()  # Track which text chunks we've already sent
 
     # Stream with 'messages' mode to get LLM tokens and tool results
     async for chunk in graph.astream(input_state, stream_mode="messages"):
         message_chunk, metadata = chunk
 
-        # Track tool call starts (input-available state)
-        if isinstance(message_chunk, AIMessageChunk):
-            # Check for tool calls in the message
+        # PRIORITY 1: Stream text from AI messages (highest priority - gets sent first)
+        # Note: stream_mode="messages" returns complete AIMessage objects, not streaming chunks
+        # But we still check for both AIMessage and AIMessageChunk for flexibility
+        if isinstance(message_chunk, AIMessage):
+            # Stream text content
+            content = message_chunk.content
+            if content and isinstance(content, str) and content.strip():
+                # Create unique identifier for this text to avoid duplicates (important for complete messages)
+                chunk_id = id(message_chunk)
+                if chunk_id not in text_chunks_sent:
+                    text_chunks_sent.add(chunk_id)
+
+                    # Send as AI SDK v5 text part
+                    text_data = {
+                        "type": "text",
+                        "text": content,
+                    }
+                    yield f"{json.dumps(text_data)}\n"
+
+            # PRIORITY 2: Track tool calls (but don't yield yet - wait for outputs)
             if hasattr(message_chunk, "tool_calls") and message_chunk.tool_calls:
                 for tc in message_chunk.tool_calls:
                     tool_id = tc.get("id") or str(uuid.uuid4())
@@ -129,17 +152,19 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                         "arguments": tc.get("args", {}),
                     }
 
-                    # Send tool invocation start (input-available)
-                    tool_data = {
-                        "type": f"tool-{tc.get('name', 'unknown')}",
-                        "toolCallId": tool_id,
-                        "toolName": tc.get("name", "unknown"),
-                        "state": "input-available",
-                        "input": tc.get("args", {}),
-                    }
-                    yield f"{json.dumps(tool_data)}\n"
+                    # Only send tool invocation if it's not a handoff (not transfer_back_to_supervisor)
+                    if tc.get("name") != "transfer_back_to_supervisor":
+                        # Send tool invocation start (input-available)
+                        tool_data = {
+                            "type": f"tool-{tc.get('name', 'unknown')}",
+                            "toolCallId": tool_id,
+                            "toolName": tc.get("name", "unknown"),
+                            "state": "input-available",
+                            "input": tc.get("args", {}),
+                        }
+                        yield f"{json.dumps(tool_data)}\n"
 
-        # ToolMessage: extract chart artifact and send as tool output
+        # PRIORITY 3: Stream tool outputs (charts and other results)
         if isinstance(message_chunk, ToolMessage):
             tool_id = getattr(message_chunk, "tool_call_id", None) or str(uuid.uuid4())
 
@@ -159,15 +184,6 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                         "output": artifact,
                     }
                     yield f"{json.dumps(tool_data)}\n"
-
-        # Stream text from AI messages
-        if isinstance(message_chunk, AIMessageChunk) and message_chunk.content:
-            # Send as AI SDK v5 text part
-            text_data = {
-                "type": "text",
-                "text": message_chunk.content,
-            }
-            yield f"{json.dumps(text_data)}\n"
 
     # Send finish signal
     finish_data = {

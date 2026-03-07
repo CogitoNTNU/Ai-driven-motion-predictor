@@ -57,8 +57,8 @@ export function Chat() {
               <Bot className="mb-4 h-12 w-12 opacity-20" />
               <p className="text-lg font-medium">Welcome!</p>
               <p className="max-w-sm">
-                Ask me about stock growth, like "What's Apple's growth from January
-                1 to February 1, 2024?"
+                    Ask me about stock growth, like "What's Apple's growth from January
+                1 to February 1, 2026?"
               </p>
             </div>
           )}

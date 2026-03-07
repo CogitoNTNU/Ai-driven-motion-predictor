@@ -25,13 +25,21 @@ export interface ChartData {
  * AI SDK v5 Message Part Types
  * Tool invocations are the primary way charts are transferred from sub-agents
  */
-export type MessagePart = TextPart | ToolInvocationPart | FinishPart;
+export type MessagePart = TextPart | TextDeltaPart | ToolInvocationPart | FinishPart;
 
 /**
- * Text content from the LLM
+ * Text content from the LLM (complete text part)
  */
 export interface TextPart {
   type: "text";
+  text: string;
+}
+
+/**
+ * Text delta part during streaming (incremental text from the LLM)
+ */
+export interface TextDeltaPart {
+  type: "text-delta";
   text: string;
 }
 
