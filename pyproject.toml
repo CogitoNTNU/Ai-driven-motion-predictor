@@ -7,9 +7,12 @@ requires-python = ">=3.12"
 license-files = ["LICENSE"]
 dependencies = [
     "asyncpg>=0.31.0",
-    "httpx>=0.28.1",
-    "python-dotenv>=1.2.2",
+"python-dotenv>=1.2.2",
+    "torch>=2.0.0",
+    "transformers>=4.40.0",
     "yfinance>=1.2.0",
+    "finnhub-python>=1.4.19",
+    "datasets>=2.19",
 ]
 
 
