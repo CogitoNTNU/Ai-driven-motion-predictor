@@ -3,11 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Send, Loader2, Bot, User, Square, BarChart3 } from "lucide-react";
+import { Send, Bot, User, Square, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useChat } from "@/hooks/use-chat";
 import { ChartRenderer } from "@/components/charts/ChartRenderer";
+import { Streamdown } from "streamdown";
+import { code } from "@streamdown/code";
 import { isChartPart, type ChartData, type Message } from "@/types/chat";
+import "streamdown/styles.css";
 
 /**
  * Extract chart data from data-chart parts in a message.
@@ -62,11 +65,17 @@ export function Chat() {
             </div>
           )}
 
-          {messages.map((message) => {
+          {messages.map((message, index) => {
             // Extract charts from data-chart parts for assistant messages
             const charts = message.role === "assistant"
               ? extractChartsFromMessage(message)
               : [];
+            
+            // Check if this is the last assistant message and loading
+            const isLastAssistantMessage = 
+              message.role === "assistant" && 
+              index === messages.length - 1 && 
+              isLoading;
 
             return (
               <div key={message.id}>
@@ -100,13 +109,22 @@ export function Chat() {
                         : "bg-muted"
                     )}
                   >
-                    <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-                      {isLoading && message.role === "assistant" ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
+                    {message.role === "user" ? (
+                      <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
                         <span>{message.content}</span>
-                      )}
-                    </div>
+                      </div>
+                    ) : (
+                      <div className="max-w-none text-sm">
+                        <Streamdown
+                          plugins={{ code }}
+                          isAnimating={isLastAssistantMessage}
+                          caret="block"
+                          className="prose prose-sm dark:prose-invert [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+                        >
+                          {message.content || (isLastAssistantMessage ? "" : "")}
+                        </Streamdown>
+                      </div>
+                    )}
                   </div>
                 </div>
 
