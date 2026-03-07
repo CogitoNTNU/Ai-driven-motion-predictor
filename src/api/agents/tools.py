@@ -7,13 +7,19 @@ from langchain.tools import tool
 
 
 @tool(response_format="content_and_artifact")
-def get_stock_growth(symbol: str, start_date: str, end_date: Optional[str] = None):
+def get_stock_growth(
+    symbol: str,
+    start_date: str,
+    end_date: Optional[str] = None,
+    chart_type: Optional[str] = "line",
+):
     """Get stock price growth for a given symbol and date range.
 
     Args:
         symbol: Stock ticker symbol (e.g., 'AAPL', 'TSLA', 'MSFT')
         start_date: Start date in YYYY-MM-DD format
         end_date: End date in YYYY-MM-DD format (defaults to today if not provided)
+        chart_type: Type of chart to generate (line, bar, area, pie)
 
     Returns:
         A tuple of (text_summary, chart_artifact) where text_summary is a brief
@@ -84,14 +90,15 @@ def get_stock_growth(symbol: str, start_date: str, end_date: Optional[str] = Non
                     }
                 )
 
-        # Create chart artifact
+        # Create chart artifact for AI SDK v5 tool invocation
         chart_id = (
             f"{symbol.lower()}_{start.strftime('%Y%m%d')}_{end.strftime('%Y%m%d')}"
         )
         chart_artifact = {
+            "tool_name": "get_stock_growth",  # For AI SDK tool routing
             "chart_id": chart_id,
             "symbol": symbol.upper(),
-            "type": "line_chart",
+            "type": f"{chart_type}_chart",  # line_chart, bar_chart, area_chart, pie_chart
             "data": chart_data,
             "metadata": {
                 "start_date": first_day.strftime("%Y-%m-%d"),

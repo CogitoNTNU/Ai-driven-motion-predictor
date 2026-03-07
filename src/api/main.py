@@ -1,7 +1,8 @@
-"""FastAPI application with streaming agent responses."""
+"""FastAPI application with streaming agent responses using AI SDK v5 format."""
 
 import os
 import json
+import uuid
 from typing import AsyncGenerator
 from datetime import datetime
 from contextlib import asynccontextmanager
@@ -13,6 +14,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 
 from agents.graph import get_graph, AgentState
+from langchain_core.messages import AIMessageChunk, ToolMessage
 
 # Load environment variables
 load_dotenv()
@@ -62,48 +64,85 @@ app.add_middleware(
 
 
 async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, None]:
-    """Stream agent responses token by token with chart data."""
+    """Stream agent responses in AI SDK v5 UI Message Stream format.
+
+    Uses tool invocation parts to transfer chart data from sub-agents to frontend.
+    Charts are sent as tool outputs that the frontend renders at the end of messages.
+    """
     graph = get_graph()
 
-    # Prepare the input state with empty charts array
+    # Prepare the input state
     input_state: AgentState = {"messages": messages, "charts": []}
 
-    # Track charts already sent to avoid duplicates
-    streamed_charts: set = set()
+    # Track tool calls and their outputs
+    tool_calls: dict = {}
+    streamed_tool_outputs: set = set()
 
     # Stream with 'messages' mode to get LLM tokens and tool results
     async for chunk in graph.astream(input_state, stream_mode="messages"):
         message_chunk, metadata = chunk
 
-        # ToolMessage: extract chart artifact placed there by the @tool decorator
-        if hasattr(message_chunk, "artifact") and message_chunk.artifact:
-            artifact = message_chunk.artifact
-            if isinstance(artifact, dict) and artifact.get("chart_id"):
-                chart_id = artifact["chart_id"]
-                if chart_id not in streamed_charts:
-                    streamed_charts.add(chart_id)
-                    yield f"data: {json.dumps({'type': 'chart', 'chart': artifact})}\n\n"
+        # Track tool call starts (input-available state)
+        if isinstance(message_chunk, AIMessageChunk):
+            # Check for tool calls in the message
+            if hasattr(message_chunk, "tool_calls") and message_chunk.tool_calls:
+                for tc in message_chunk.tool_calls:
+                    tool_id = tc.get("id") or str(uuid.uuid4())
+                    tool_calls[tool_id] = {
+                        "name": tc.get("name", "unknown"),
+                        "arguments": tc.get("args", {}),
+                    }
 
-        # Stream text tokens from AI messages only (skip tool/human messages)
-        if (
-            hasattr(message_chunk, "content")
-            and message_chunk.content
-            and hasattr(message_chunk, "type")
-            and message_chunk.type == "AIMessageChunk"
-        ):
-            data = {
-                "type": "token",
-                "content": message_chunk.content,
-                "role": "assistant",
+                    # Send tool invocation start (input-available)
+                    tool_data = {
+                        "type": f"tool-{tc.get('name', 'unknown')}",
+                        "toolCallId": tool_id,
+                        "toolName": tc.get("name", "unknown"),
+                        "state": "input-available",
+                        "input": tc.get("args", {}),
+                    }
+                    yield f"{json.dumps(tool_data)}\n"
+
+        # ToolMessage: extract chart artifact and send as tool output
+        if isinstance(message_chunk, ToolMessage):
+            tool_id = getattr(message_chunk, "tool_call_id", None) or str(uuid.uuid4())
+
+            # Get artifact if available (from @tool(response_format="content_and_artifact"))
+            artifact = getattr(message_chunk, "artifact", None)
+
+            if artifact and isinstance(artifact, dict) and artifact.get("chart_id"):
+                if tool_id not in streamed_tool_outputs:
+                    streamed_tool_outputs.add(tool_id)
+
+                    # Send tool invocation with output (output-available)
+                    tool_data = {
+                        "type": f"tool-{artifact.get('tool_name', 'get_stock_growth')}",
+                        "toolCallId": tool_id,
+                        "toolName": artifact.get("tool_name", "get_stock_growth"),
+                        "state": "output-available",
+                        "output": artifact,
+                    }
+                    yield f"{json.dumps(tool_data)}\n"
+
+        # Stream text from AI messages
+        if isinstance(message_chunk, AIMessageChunk) and message_chunk.content:
+            # Send as AI SDK v5 text part
+            text_data = {
+                "type": "text",
+                "text": message_chunk.content,
             }
-            yield f"data: {json.dumps(data)}\n\n"
+            yield f"{json.dumps(text_data)}\n"
 
-    # Send completion signal
-    done_data = {
-        "type": "done",
-        "timestamp": datetime.now().isoformat(),
+    # Send finish signal
+    finish_data = {
+        "type": "finish",
+        "finishReason": "stop",
+        "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+        },
     }
-    yield f"data: {json.dumps(done_data)}\n\n"
+    yield f"{json.dumps(finish_data)}\n"
 
 
 @app.get("/")
@@ -125,15 +164,17 @@ async def health():
 @app.post("/api/chat")
 async def chat(request: ChatRequest):
     """
-    Chat endpoint that streams agent responses.
+    Chat endpoint that streams agent responses in AI SDK UIMessageStream format.
 
     Accepts a list of messages and returns a streaming response with
-    tokens from the agent conversation.
+    message parts compatible with @ai-sdk/react's useChat hook.
 
-    Stream Events:
-    - type: "token" - Text content from the LLM
-    - type: "chart" - Chart data for visualization
-    - type: "done" - Stream completion signal
+    Stream Format (AI SDK UIMessageStream):
+    - type: "text-delta" - Incremental text content from the LLM
+    - type: "data-chart" - Chart data parts for visualization
+    - type: "finish" - Message completion with usage statistics
+
+    This format is compatible with Vercel AI SDK's useChat hook in the frontend.
     """
     try:
         # Convert messages to the format expected by LangGraph
