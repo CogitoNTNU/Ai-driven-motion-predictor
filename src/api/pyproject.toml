@@ -1,0 +1,16 @@
+[project]
+name = "api"
+version = "0.1.0"
+description = "FastAPI server with LangGraph agents"
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "fastapi[standard]>=0.135.1",
+    "langchain>=0.3.0",
+    "langgraph>=0.2.0",
+    "langgraph-supervisor>=0.0.15",
+    "langchain-openai>=0.2.0",
+    "yfinance>=0.2.0",
+    "python-dotenv>=1.0.0",
+    "uvicorn>=0.30.0",
+]
