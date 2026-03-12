@@ -224,6 +224,42 @@ async def insert_raw_news_batch(pool: asyncpg.Pool, records: list[RawNews]) -> i
     return len(records)  # approximate; dedup happens silently
 
 
+async def insert_raw_news_returning_ids(
+    pool: asyncpg.Pool,
+    records: list[RawNews],
+) -> list[int]:
+    """Insert raw news articles and return their database IDs.
+
+    Uses ``ON CONFLICT DO UPDATE`` (no-op) so the ID is always returned,
+    whether the row was newly inserted or already existed.
+
+    Args:
+        pool: Active asyncpg pool.
+        records: Articles to insert.
+
+    Returns:
+        List of IDs in the same order as *records*.
+    """
+    if not records:
+        return []
+    query = """
+        INSERT INTO raw_news (date_utc, trading_date, text, text_hash, dataset_subset, source, tickers)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        ON CONFLICT (text_hash, trading_date) DO UPDATE SET text = EXCLUDED.text
+        RETURNING id
+    """
+    ids: list[int] = []
+    async with pool.acquire() as conn:
+        for r in records:
+            row = await conn.fetchrow(
+                query,
+                r.date_utc, r.trading_date, r.text, r.text_hash,
+                r.dataset_subset, r.source, r.tickers,
+            )
+            ids.append(row["id"])
+    return ids
+
+
 async def get_unscored_article_batch(pool: asyncpg.Pool, limit: int) -> list[tuple[int, str]]:
     """Fetch articles that have not yet been scored by FinBERT.
 
