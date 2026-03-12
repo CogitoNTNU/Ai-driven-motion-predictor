@@ -167,6 +167,8 @@ def get_current_price(symbol: str) -> str:
             change_str = "N/A"
 
         company_name = info.get("longName", symbol.upper())
+        market_cap = info.get("marketCap")
+        market_cap_str = f"{market_cap:,}" if market_cap is not None else "N/A"
 
         return f"""{company_name} ({symbol.upper()})
 Current Price: ${current_price:.2f}
@@ -175,7 +177,7 @@ Daily Change: {change_str}
 Market Data:
 - 52 Week High: ${info.get("fiftyTwoWeekHigh", "N/A")}
 - 52 Week Low: ${info.get("fiftyTwoWeekLow", "N/A")}
-- Market Cap: ${info.get("marketCap", "N/A"):,}"""
+- Market Cap: ${market_cap_str}"""
 
     except Exception as e:
         return f"Error retrieving current price for {symbol}: {str(e)}"
