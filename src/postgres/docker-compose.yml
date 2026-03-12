@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: paradedb/paradedb:latest
+    restart: always
+    environment:
+      POSTGRES_USER: quant
+      POSTGRES_PASSWORD: 6X4FxOmzbAlETXzjDIh4dtCNNSFnWBVDs0oE9OLt9DvjrRQCLd6X4FxOmzbAlETXzjDIh4dtCNNSFnWBVDs0oE9OLt9DvjrRQCLd
+      POSTGRES_DB: stockdatabase
+    ports:
+      - "5532:5432"
+    volumes:
+      - quant-data:/var/lib/postgresql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U quant -d stockdatabase || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - quant_network
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_container
+    restart: always
+    user: "5050:5050"
+    ports:
+      - "8889:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user-name@domain-name.com
+      PGADMIN_DEFAULT_PASSWORD: mk22WySgwdry88VJRYRIUF31sBc0RMO7CRSWuvfBCGejE5AH2Kmk22WySgwdry88VJRYRIUF31sBc0RMO7CRSWuvfBCGejE5AH2K
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - quant_network
+
+volumes:
+  quant-data:
+  pgadmin-data:
+
+networks:
+  quant_network:
+    driver: bridge

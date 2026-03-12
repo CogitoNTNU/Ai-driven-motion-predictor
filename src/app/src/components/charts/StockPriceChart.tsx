@@ -1,0 +1,142 @@
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import type { ChartData } from "@/types/chat";
+
+interface StockPriceChartProps {
+  chart: ChartData;
+}
+
+export function StockPriceChart({ chart }: StockPriceChartProps) {
+  const { symbol, data, metadata } = chart;
+
+  // Format date for display
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  // Format price for Y-axis
+  const formatPrice = (price: number) => {
+    return `$${price.toFixed(2)}`;
+  };
+
+  // Determine gradient color based on growth
+  const gradientColor =
+    metadata.percentage_growth >= 0 ? "#22c55e" : "#ef4444";
+
+  return (
+    <Card className="shadow-sm">
+      <CardHeader>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <CardTitle className="text-xl">{symbol} Stock Price</CardTitle>
+            <CardDescription>
+              {formatDate(metadata.start_date)} - {formatDate(metadata.end_date)}
+              {" "}({metadata.trading_days} trading days)
+            </CardDescription>
+          </div>
+          <Badge variant="outline" className="w-fit">
+            {metadata.percentage_growth >= 0 ? "+" : ""}
+            {metadata.percentage_growth.toFixed(2)}%
+          </Badge>
+        </div>
+      </CardHeader>
+
+      <CardContent>
+        <div className="h-[350px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart
+              data={data}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
+              <defs>
+                <linearGradient id={`gradient-${symbol}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={gradientColor} stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor={gradientColor} stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" strokeOpacity={0.5} />
+              <XAxis
+                dataKey="date"
+                tickFormatter={formatDate}
+                stroke="#9ca3af"
+                fontSize={12}
+                tickLine={false}
+                axisLine={{ stroke: "#e5e7eb" }}
+              />
+              <YAxis
+                tickFormatter={formatPrice}
+                stroke="#9ca3af"
+                fontSize={12}
+                tickLine={false}
+                axisLine={{ stroke: "#e5e7eb" }}
+                domain={["auto", "auto"]}
+              />
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    const data = payload[0].payload;
+                    return (
+                      <div className="rounded-lg border-2 border-sidebar bg-card p-3 shadow-lg space-y-1">
+                        <p className="text-sm font-semibold text-foreground">
+                          {formatDate(data.date)}
+                        </p>
+                        <p className="text-base font-bold text-foreground">
+                          {formatPrice(data.price)}
+                        </p>
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+                cursor={{ stroke: gradientColor, strokeWidth: 1, strokeDasharray: "4 4" }}
+              />
+              <Area
+                type="monotone"
+                dataKey="price"
+                stroke={gradientColor}
+                strokeWidth={2}
+                fill={`url(#gradient-${symbol})`}
+                fillOpacity={1}
+                dot={false}
+                activeDot={{ r: 6, fill: gradientColor, strokeWidth: 2, stroke: "white" }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+
+      <CardFooter className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary">
+            Start: {formatPrice(metadata.start_price)}
+          </Badge>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary">
+            End: {formatPrice(metadata.end_price)}
+          </Badge>
+        </div>
+        <Badge variant={metadata.percentage_growth >= 0 ? "default" : "destructive"} className={cn(
+          "font-semibold"
+        )}>
+          {metadata.percentage_growth >= 0 ? "+" : ""}
+          {metadata.percentage_growth.toFixed(2)}%
+        </Badge>
+      </CardFooter>
+    </Card>
+  );
+}

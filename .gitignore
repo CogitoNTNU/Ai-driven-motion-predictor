@@ -252,3 +252,4 @@ lerna-debug.log
 .DS_Store
 Thumbs.db
 *.ckpt*
+/src/app/.vite/
