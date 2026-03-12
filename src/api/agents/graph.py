@@ -42,15 +42,6 @@ def load_prompt(prompt_name: str) -> str:
         return f.read()
 
 
-def extract_chart_artifacts(tool_results: List[Any]) -> List[ChartData]:
-    """Extract chart artifacts from tool results."""
-    charts = []
-    for result in tool_results:
-        if isinstance(result, dict) and result.get("chart_artifact"):
-            charts.append(result["chart_artifact"])
-    return charts
-
-
 def create_stock_agents():
     """Create and configure the supervisor and sub-agent workflow."""
 
