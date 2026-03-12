@@ -175,7 +175,7 @@ Daily Change: {change_str}
 Market Data:
 - 52 Week High: ${info.get("fiftyTwoWeekHigh", "N/A")}
 - 52 Week Low: ${info.get("fiftyTwoWeekLow", "N/A")}
-- Market Cap: ${info.get("marketCap", "N/A"):,}"""
+- Market Cap: ${f"{info.get('marketCap'):,}" if isinstance(info.get("marketCap"), (int, float)) else "N/A"}"""
 
     except Exception as e:
         return f"Error retrieving current price for {symbol}: {str(e)}"
