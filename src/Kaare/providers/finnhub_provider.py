@@ -2,12 +2,14 @@
 
 import asyncio
 import datetime
+import hashlib
 import logging
 from functools import partial
 
 import finnhub
 
 from Kaare import config
+from Kaare.models import RawNews
 
 logger = logging.getLogger(__name__)
 
@@ -80,3 +82,61 @@ class FinnhubProvider:
                     by_date.setdefault(date, []).append(text)
 
         return by_date
+
+    def _fetch_raw_news_sync(
+        self,
+        symbol: str,
+        start: datetime.date,
+        end: datetime.date,
+    ) -> list[RawNews]:
+        articles = self._fetch_company_news_sync(symbol, start, end)
+        records: list[RawNews] = []
+        for article in articles:
+            ts = article.get("datetime", 0)
+            date_utc = datetime.datetime.fromtimestamp(ts, tz=datetime.timezone.utc)
+            trading_date = date_utc.date()
+            if not (start <= trading_date <= end):
+                continue
+            headline = article.get("headline", "")
+            summary = article.get("summary", "")
+            text = f"{headline}. {summary}".strip(". ")
+            if not text:
+                continue
+            text_hash = hashlib.sha256(text.encode()).hexdigest()
+            records.append(
+                RawNews(
+                    date_utc=date_utc,
+                    trading_date=trading_date,
+                    text=text,
+                    text_hash=text_hash,
+                    dataset_subset="finnhub",
+                    source=article.get("source"),
+                    tickers=[symbol],
+                )
+            )
+        return records
+
+    async def fetch_raw_news(
+        self,
+        symbol: str,
+        start: datetime.date,
+        end: datetime.date,
+    ) -> list[RawNews]:
+        """Fetch news for *symbol* and return fully-populated :class:`~Kaare.models.RawNews` objects.
+
+        Args:
+            symbol: Ticker symbol.
+            start: Inclusive start date.
+            end: Inclusive end date.
+
+        Returns:
+            List of :class:`~Kaare.models.RawNews` ready for DB insertion.
+        """
+        loop = asyncio.get_running_loop()
+        try:
+            return await loop.run_in_executor(
+                None, partial(self._fetch_raw_news_sync, symbol, start, end)
+            )
+        except Exception as exc:
+            logger.warning("Finnhub fetch_raw_news failed for %s: %s", symbol, exc)
+            return []
