@@ -49,8 +49,9 @@ export function useChat(options: UseChatOptions) {
         e?.preventDefault();
         if (!input.trim()) return;
 
-        await sendMessage({text: input});
+        const text = input;
         setInput("");
+        await sendMessage({text});
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
