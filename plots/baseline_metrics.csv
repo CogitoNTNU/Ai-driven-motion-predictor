@@ -1,0 +1,2 @@
+model,ticker,start_date,train_rows,test_rows,MAE,RMSE,MAPE_percent
+Persistence Baseline (t-1),AAPL,2020-01-01,1244,312,2.8638699849446616,4.255481313171558,1.2482685161707414
