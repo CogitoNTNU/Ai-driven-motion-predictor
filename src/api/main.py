@@ -1,30 +1,40 @@
 """FastAPI application with streaming agent responses using AI SDK v5 format."""
 
-import os
+# Standard library imports (must be first for ruff E402)
 import json
+import os
+import sys
 import uuid
-from typing import AsyncGenerator
-from datetime import datetime
 from contextlib import asynccontextmanager
+from datetime import datetime
+from pathlib import Path
+from typing import AsyncGenerator, Union
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import StreamingResponse
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
-from dotenv import load_dotenv
-from typing import Union
+# Add src directory to Python path for Kaare module
+# main.py is in src/api/, so go up one level to reach src/
+src_path = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(src_path))
 
-from agents.graph import get_graph, AgentState
-from langchain_core.messages import (
+# Third-party imports (after path manipulation - noqa required for E402)
+from fastapi import FastAPI, HTTPException  # noqa: E402
+from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
+from fastapi.responses import StreamingResponse  # noqa: E402
+from langchain_core.messages import (  # noqa: E402
     AIMessage,
-    ToolMessage,
+    AnyMessage,
     HumanMessage,
     SystemMessage,
-    AnyMessage,
+    ToolMessage,
 )
+from pydantic import BaseModel, Field  # noqa: E402
 
-# Load environment variables
+# Load environment variables before other imports that might need them
+from dotenv import load_dotenv  # noqa: E402
+
 load_dotenv()
+
+# Local imports (after path manipulation - noqa required for E402)
+from agents.graph import AgentState, get_graph  # noqa: E402
 
 
 class TextPart(BaseModel):

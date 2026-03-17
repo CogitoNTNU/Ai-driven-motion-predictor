@@ -13,4 +13,10 @@ dependencies = [
     "yfinance>=0.2.0",
     "python-dotenv>=1.0.0",
     "uvicorn>=0.30.0",
+    # Kaare dependencies
+    "asyncpg>=0.31.0",
+    "torch>=2.0.0",
+    "transformers>=4.40.0",
+    "finnhub-python>=1.4.19",
+    "datasets>=2.19",
 ]
