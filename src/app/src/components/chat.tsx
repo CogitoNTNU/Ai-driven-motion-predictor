@@ -27,9 +27,14 @@ function extractChartsFromMessage(message: Message): ChartData[] {
 }
 
 export function Chat() {
-    const {messages, input, handleInputChange, handleSubmit, isLoading, stop} = useChat({
+    const {messages, input, handleInputChange, handleSubmit, isLoading, stop, error} = useChat({
         api: `${import.meta.env.VITE_API_URL ?? ""}/api/chat`,
     });
+    
+    // Log errors for debugging
+    if (error) {
+        console.error("Chat error:", error);
+    }
     const scrollRef = useRef<HTMLDivElement>(null);
 
     // Auto-scroll to bottom when new messages arrive
@@ -71,7 +76,7 @@ export function Chat() {
                     // Extract charts from data-chart parts for assistant messages
                     const charts = message.role === "assistant" ? extractChartsFromMessage(message) : [];
 
-                    // Check if message has tool call related parts (data-tool-call or data-tool-result)
+                    // Check if message has tool call or tool result parts
                     const hasToolCalls = message.role === "assistant" && message.parts ? message.parts.some((p) => p.type === "data-tool-call" || p.type === "data-tool-result") : false;
 
                     // Check if this is the last assistant message and loading
@@ -147,6 +152,13 @@ export function Chat() {
                 <div ref={scrollRef}/>
             </div>
         </ScrollArea>
+
+        {/* Error Display */}
+        {error && (
+            <div className="sticky bottom-20 mx-4 mb-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
+                <p className="font-medium">Error: {error.message || "Failed to send message"}</p>
+            </div>
+        )}
 
         {/* Input Area */}
         <div
