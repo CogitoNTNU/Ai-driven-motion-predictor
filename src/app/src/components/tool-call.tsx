@@ -230,7 +230,7 @@ export function ToolCallRenderer({parts}: ToolCallRendererProps) {
     if (toolCalls.length === 0) return null;
 
     return (
-        <div className="mt-4 space-y-2">
+        <div className="mt-4 space-y-2 max-w-2xl">
             <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">
                 <Wrench className="h-3 w-3"/>
                 <span>Tools ({toolCalls.length})</span>
