@@ -6,6 +6,9 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import type { ChartData } from "@/types/chat";
 
 interface StockPieChartProps {
@@ -31,68 +34,105 @@ export function StockPieChart({ chart }: StockPieChartProps) {
   ];
 
   return (
-    <div className="w-full rounded-lg border bg-card p-4 my-4">
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold">{symbol} Price Distribution</h3>
-        <p className="text-sm text-muted-foreground">
-          {formatDate(metadata.start_date)} - {formatDate(metadata.end_date)}
-          {" "}({metadata.trading_days} trading days)
-        </p>
-      </div>
-
-      <div className="h-[300px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={pieData}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={(_entry) => {
-                const e = _entry as { name?: string; value?: number };
-                return `${e.name ?? ""}: ${formatPrice(e.value ?? 0)}`;
-              }}
-              outerRadius={80}
-              fill="#8884d8"
-              dataKey="value"
-            >
-              {pieData.map((_entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
-                />
-              ))}
-            </Pie>
-            <Tooltip
-              formatter={(value) => [formatPrice(Number(value) || 0), "Price"]}
-            />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
-
-      <div className="mt-4 flex items-center justify-between text-sm">
-        <div>
-          <span className="text-muted-foreground">Start: </span>
-          <span className="font-medium">
-            {formatPrice(metadata.start_price)}
-          </span>
+    <Card className="border-[#4d4d4f] bg-[#2f2f2f] shadow-none">
+      <CardHeader>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <CardTitle className="text-xl text-[#ececf1]">{symbol} Price Distribution</CardTitle>
+            <CardDescription className="text-[#9ca3af]">
+              {formatDate(metadata.start_date)} - {formatDate(metadata.end_date)}
+              {" "}({metadata.trading_days} trading days)
+            </CardDescription>
+          </div>
+          <Badge 
+            variant="outline" 
+            className={cn(
+              "w-fit",
+              metadata.percentage_growth >= 0 
+                ? "border-green-500/50 text-green-400" 
+                : "border-red-500/50 text-red-400"
+            )}
+          >
+            {metadata.percentage_growth >= 0 ? "+" : ""}
+            {metadata.percentage_growth.toFixed(2)}%
+          </Badge>
         </div>
-        <div
-          className={`font-semibold ${
-            metadata.percentage_growth >= 0
-              ? "text-green-600"
-              : "text-red-600"
-          }`}
+      </CardHeader>
+
+      <CardContent>
+        <div className="h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={pieData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={(_entry) => {
+                  const e = _entry as { name?: string; value?: number };
+                  return `${e.name ?? ""}: ${formatPrice(e.value ?? 0)}`;
+                }}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {pieData.map((_entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    const data = payload[0];
+                    return (
+                      <div className="rounded-lg border border-[#4d4d4f] bg-[#2f2f2f] p-3 shadow-lg">
+                        <p className="text-sm font-semibold text-[#ececf1]">
+                          {data.name}
+                        </p>
+                        <p className="text-base font-bold text-[#ececf1]">
+                          {formatPrice(Number(data.value) || 0)}
+                        </p>
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
+              <Legend 
+                wrapperStyle={{ color: '#9ca3af' }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+
+      <CardFooter className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="bg-[#404040] text-[#ececf1]">
+            Start: {formatPrice(metadata.start_price)}
+          </Badge>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="bg-[#404040] text-[#ececf1]">
+            End: {formatPrice(metadata.end_price)}
+          </Badge>
+        </div>
+        <Badge 
+          variant={metadata.percentage_growth >= 0 ? "default" : "destructive"} 
+          className={cn(
+            "font-semibold",
+            metadata.percentage_growth >= 0 
+              ? "bg-green-500/20 text-green-400 hover:bg-green-500/30" 
+              : "bg-red-500/20 text-red-400 hover:bg-red-500/30"
+          )}
         >
           {metadata.percentage_growth >= 0 ? "+" : ""}
           {metadata.percentage_growth.toFixed(2)}%
-        </div>
-        <div>
-          <span className="text-muted-foreground">End: </span>
-          <span className="font-medium">{formatPrice(metadata.end_price)}</span>
-        </div>
-      </div>
-    </div>
+        </Badge>
+      </CardFooter>
+    </Card>
   );
 }

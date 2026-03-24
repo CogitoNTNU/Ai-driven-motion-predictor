@@ -17,8 +17,8 @@ export default defineConfig({
         target: process.env.VITE_API_URL ?? "http://localhost:8000",
         changeOrigin: true,
         // Configure for SSE streaming - don't buffer responses
-        configure: (proxy, _options) => {
-          proxy.on('proxyRes', (proxyRes, _req, _res) => {
+        configure: (proxy) => {
+          proxy.on('proxyRes', (proxyRes) => {
             // Ensure SSE headers are preserved
             proxyRes.headers['Cache-Control'] = 'no-cache';
             proxyRes.headers['Connection'] = 'keep-alive';
