@@ -312,6 +312,39 @@ async def insert_article_sentiment_batch(
 
 
 # ---------------------------------------------------------------------------
+# daily_ticker_sentiment queries
+# ---------------------------------------------------------------------------
+
+
+async def get_daily_ticker_sentiment(
+    pool: asyncpg.Pool,
+    symbol: str,
+    start: datetime.date,
+    end: datetime.date,
+) -> list[tuple[datetime.date, float, int]]:
+    """Fetch pre-aggregated sentiment for *symbol* from daily_ticker_sentiment.
+
+    Args:
+        pool: Active asyncpg pool.
+        symbol: Ticker symbol (case-insensitive).
+        start: Inclusive start date.
+        end: Inclusive end date.
+
+    Returns:
+        List of ``(trading_date, mean_score, article_count)`` tuples ordered by date.
+    """
+    query = """
+        SELECT trading_date, mean_score, article_count
+        FROM daily_ticker_sentiment
+        WHERE ticker = $1 AND trading_date BETWEEN $2 AND $3
+        ORDER BY trading_date
+    """
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(query, symbol.upper(), start, end)
+    return [(row["trading_date"], row["mean_score"], row["article_count"]) for row in rows]
+
+
+# ---------------------------------------------------------------------------
 # daily_market_sentiment / daily_ticker_sentiment aggregation
 # ---------------------------------------------------------------------------
 
