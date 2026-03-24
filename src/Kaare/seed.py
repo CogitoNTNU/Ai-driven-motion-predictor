@@ -16,12 +16,13 @@ import argparse
 import asyncio
 import datetime
 import logging
+import sys
 
 from Kaare.client import KaareClient
 from Kaare.db import connection as db_connection, migrations
 from Kaare.pipeline import run_pipeline
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s", stream=sys.stdout)
 logger = logging.getLogger(__name__)
 
 # Top 10 stocks by market cap (as of early 2026)
@@ -39,7 +40,7 @@ TOP_10_SYMBOLS = [
 ]
 
 END = datetime.date.today()
-START = END - datetime.timedelta(days=365 * 3)
+START = datetime.date(2000, 1, 1)
 
 
 async def main(pipeline_only: bool = False, subset: str | None = None) -> None:
