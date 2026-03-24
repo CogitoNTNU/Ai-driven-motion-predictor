@@ -76,11 +76,13 @@ def create_stock_agents():
     )
 
     # Create the supervisor workflow with custom state
+    # output_mode="full_history" ensures all messages from sub-agents are included
     workflow = create_supervisor(
         agents=[stock_analyst_sub_agent, sentiment_analyst_sub_agent],
         model=model,
         prompt=main_agent_prompt,
         state_schema=AgentState,
+        output_mode="full_history",
     )
 
     # Compile the graph
