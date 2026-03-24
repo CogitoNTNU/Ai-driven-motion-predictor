@@ -138,12 +138,12 @@ export function StockPriceChart({ chart }: StockPriceChartProps) {
       <CardFooter className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="bg-[#404040] text-[#ececf1]">
-            Start: {formatPrice(metadata?.start_price)}
+            Start: {formatPrice(metadata?.start_price ?? 0)}
           </Badge>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="bg-[#404040] text-[#ececf1]">
-            End: {formatPrice(metadata?.end_price)}
+            End: {formatPrice(metadata?.end_price ?? 0)}
           </Badge>
         </div>
         <Badge 
