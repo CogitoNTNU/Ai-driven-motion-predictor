@@ -261,15 +261,16 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                     # Stream tool call as custom data part
                     # AI SDK accepts custom data-* events that can contain arbitrary data
                     # Frontend will handle these via message.parts with type "data-tool-call"
-                    tool_args_with_agent = {
-                        **tool_args_data,
-                        "_agentName": agent_name,  # Include agent name for frontend display
-                    }
+                    # Schema: { type: "data-*", id?: string, data: unknown, transient?: boolean }
                     tool_call_event = {
                         "type": "data-tool-call",  # Custom data part type
-                        "toolCallId": tool_id,
-                        "toolName": tool_name,
-                        "input": tool_args_with_agent,
+                        "id": tool_id,  # Optional ID for persistence in message parts
+                        "data": {
+                            "toolCallId": tool_id,
+                            "toolName": tool_name,
+                            "input": tool_args_data,
+                            "_agentName": agent_name,  # Include agent name for frontend display
+                        },
                     }
                     yield f"data: {json.dumps(tool_call_event)}\n\n"
 
@@ -288,6 +289,7 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                 # Stream tool result as custom data part
                 # AI SDK accepts custom data-* events that can contain arbitrary data
                 # Frontend will handle these via message.parts with type "data-tool-result"
+                # Schema: { type: "data-*", id?: string, data: unknown, transient?: boolean }
                 output_data = (
                     tool_content
                     if isinstance(tool_content, str)
@@ -295,9 +297,12 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                 )
                 tool_result_event = {
                     "type": "data-tool-result",  # Custom data part type
-                    "toolCallId": tool_id,
-                    "toolName": tool_name,
-                    "output": output_data,
+                    "id": tool_id,  # Optional ID for persistence in message parts
+                    "data": {
+                        "toolCallId": tool_id,
+                        "toolName": tool_name,
+                        "output": output_data,
+                    },
                 }
                 yield f"data: {json.dumps(tool_result_event)}\n\n"
 
@@ -323,14 +328,12 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
         end_event = {"type": "text-end", "id": text_id}
         yield f"data: {json.dumps(end_event)}\n\n"
 
-    # Send finish signal with usage (AI SDK v5 format)
+    # Send finish signal (AI SDK v5 format)
+    # Schema: { type: "finish", finishReason?: string, messageMetadata?: unknown }
+    # Note: usage is NOT part of the standard schema - use messageMetadata if needed
     finish_event = {
         "type": "finish",
         "finishReason": "stop",
-        "usage": {
-            "promptTokens": 0,  # TODO: Extract from LangGraph if available
-            "completionTokens": 0,
-        },
     }
     yield f"data: {json.dumps(finish_event)}\n\n"
 

@@ -38,11 +38,9 @@ export interface DataChartPart {
 }
 
 /**
- * Tool call part - represents a tool invocation from an agent
- * Backend sends these as custom data-tool-call data parts
+ * Tool call data structure (wrapped inside data field per AI SDK schema)
  */
-export interface ToolCallPart {
-  type: "data-tool-call";
+export interface ToolCallData {
   toolCallId: string;
   toolName: string;
   input: {
@@ -52,14 +50,34 @@ export interface ToolCallPart {
 }
 
 /**
- * Tool result part - represents the result of a tool execution
- * Backend sends these as custom data-tool-result data parts
+ * Tool result data structure (wrapped inside data field per AI SDK schema)
  */
-export interface ToolResultPart {
-  type: "data-tool-result";
+export interface ToolResultData {
   toolCallId: string;
   toolName: string;
   output: string;
+}
+
+/**
+ * Tool call part - represents a tool invocation from an agent
+ * Backend sends these as custom data-tool-call data parts
+ * AI SDK schema: { type: "data-*", id?: string, data: unknown, transient?: boolean }
+ */
+export interface ToolCallPart {
+  type: "data-tool-call";
+  id?: string;
+  data: ToolCallData;
+}
+
+/**
+ * Tool result part - represents the result of a tool execution
+ * Backend sends these as custom data-tool-result data parts
+ * AI SDK schema: { type: "data-*", id?: string, data: unknown, transient?: boolean }
+ */
+export interface ToolResultPart {
+  type: "data-tool-result";
+  id?: string;
+  data: ToolResultData;
 }
 
 /**
