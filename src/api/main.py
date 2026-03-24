@@ -166,7 +166,7 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
 
     # Send start event with message ID (AI SDK v5 format)
     start_event = {"type": "start", "messageId": message_id}
-    yield f"data: {json.dumps(start_event)}\n\n"
+    yield f"data: {json.dumps(start_event, ensure_ascii=False)}\n\n"
 
     # Stream with multiple modes to get both LLM tokens and node updates
     # This is necessary for supervisor/sub-agent patterns to track when sub-agents are invoked
@@ -214,7 +214,7 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                     if not has_text:
                         has_text = True
                         start_event = {"type": "text-start", "id": text_id}
-                        yield f"data: {json.dumps(start_event)}\n\n"
+                        yield f"data: {json.dumps(start_event, ensure_ascii=False)}\n\n"
 
                     # Send text content in delta format
                     delta_event = {
@@ -222,7 +222,7 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                         "id": text_id,
                         "delta": content,
                     }
-                    yield f"data: {json.dumps(delta_event)}\n\n"
+                    yield f"data: {json.dumps(delta_event, ensure_ascii=False)}\n\n"
 
             # PRIORITY 2: Stream tool calls as they are initiated
             if hasattr(message_chunk, "tool_calls") and message_chunk.tool_calls:
@@ -272,7 +272,7 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                             "_agentName": agent_name,  # Include agent name for frontend display
                         },
                     }
-                    yield f"data: {json.dumps(tool_call_event)}\n\n"
+                    yield f"data: {json.dumps(tool_call_event, ensure_ascii=False)}\n\n"
 
         # PRIORITY 3: Stream tool outputs (charts and other results)
         if isinstance(message_chunk, ToolMessage):
@@ -293,7 +293,7 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                 output_data = (
                     tool_content
                     if isinstance(tool_content, str)
-                    else json.dumps(tool_content)
+                    else json.dumps(tool_content, ensure_ascii=False)
                 )
                 tool_result_event = {
                     "type": "data-tool-result",  # Custom data part type
@@ -304,7 +304,7 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                         "output": output_data,
                     },
                 }
-                yield f"data: {json.dumps(tool_result_event)}\n\n"
+                yield f"data: {json.dumps(tool_result_event, ensure_ascii=False)}\n\n"
 
                 # Get artifact if available (from @tool(response_format="content_and_artifact"))
                 artifact = getattr(message_chunk, "artifact", None)
@@ -313,7 +313,7 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                     # End text block before sending chart
                     if has_text:
                         end_event = {"type": "text-end", "id": text_id}
-                        yield f"data: {json.dumps(end_event)}\n\n"
+                        yield f"data: {json.dumps(end_event, ensure_ascii=False)}\n\n"
                         has_text = False
 
                     # Send chart data as custom data part
@@ -321,12 +321,12 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                         "type": "data-chart",
                         "data": artifact,
                     }
-                    yield f"data: {json.dumps(chart_event)}\n\n"
+                    yield f"data: {json.dumps(chart_event, ensure_ascii=False)}\n\n"
 
     # End text block if still open
     if has_text:
         end_event = {"type": "text-end", "id": text_id}
-        yield f"data: {json.dumps(end_event)}\n\n"
+        yield f"data: {json.dumps(end_event, ensure_ascii=False)}\n\n"
 
     # Send finish signal (AI SDK v5 format)
     # Schema: { type: "finish", finishReason?: string, messageMetadata?: unknown }
@@ -335,7 +335,7 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
         "type": "finish",
         "finishReason": "stop",
     }
-    yield f"data: {json.dumps(finish_event)}\n\n"
+    yield f"data: {json.dumps(finish_event, ensure_ascii=False)}\n\n"
 
     # Send stream termination marker
     yield "data: [DONE]\n\n"
