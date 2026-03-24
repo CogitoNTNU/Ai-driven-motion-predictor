@@ -38,17 +38,25 @@ export function StockPriceChart({ chart }: StockPriceChartProps) {
     metadata.percentage_growth >= 0 ? "#22c55e" : "#ef4444";
 
   return (
-    <Card className="shadow-sm">
+    <Card className="border-[#4d4d4f] bg-[#2f2f2f] shadow-none">
       <CardHeader>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <CardTitle className="text-xl">{symbol} Stock Price</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-xl text-[#ececf1]">{symbol} Stock Price</CardTitle>
+            <CardDescription className="text-[#9ca3af]">
               {formatDate(metadata.start_date)} - {formatDate(metadata.end_date)}
               {" "}({metadata.trading_days} trading days)
             </CardDescription>
           </div>
-          <Badge variant="outline" className="w-fit">
+          <Badge 
+            variant="outline" 
+            className={cn(
+              "w-fit",
+              metadata.percentage_growth >= 0 
+                ? "border-green-500/50 text-green-400" 
+                : "border-red-500/50 text-red-400"
+            )}
+          >
             {metadata.percentage_growth >= 0 ? "+" : ""}
             {metadata.percentage_growth.toFixed(2)}%
           </Badge>
@@ -68,21 +76,21 @@ export function StockPriceChart({ chart }: StockPriceChartProps) {
                   <stop offset="95%" stopColor={gradientColor} stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#4d4d4f" strokeOpacity={0.5} />
               <XAxis
                 dataKey="date"
                 tickFormatter={formatDate}
                 stroke="#9ca3af"
                 fontSize={12}
                 tickLine={false}
-                axisLine={{ stroke: "#e5e7eb" }}
+                axisLine={{ stroke: "#4d4d4f" }}
               />
               <YAxis
                 tickFormatter={formatPrice}
                 stroke="#9ca3af"
                 fontSize={12}
                 tickLine={false}
-                axisLine={{ stroke: "#e5e7eb" }}
+                axisLine={{ stroke: "#4d4d4f" }}
                 domain={["auto", "auto"]}
               />
               <Tooltip
@@ -90,11 +98,11 @@ export function StockPriceChart({ chart }: StockPriceChartProps) {
                   if (active && payload && payload.length) {
                     const data = payload[0].payload;
                     return (
-                      <div className="rounded-lg border-2 border-sidebar bg-card p-3 shadow-lg space-y-1">
-                        <p className="text-sm font-semibold text-foreground">
+                      <div className="rounded-lg border border-[#4d4d4f] bg-[#2f2f2f] p-3 shadow-lg space-y-1">
+                        <p className="text-sm font-semibold text-[#ececf1]">
                           {formatDate(data.date)}
                         </p>
-                        <p className="text-base font-bold text-foreground">
+                        <p className="text-base font-bold text-[#ececf1]">
                           {formatPrice(data.price)}
                         </p>
                       </div>
@@ -112,7 +120,7 @@ export function StockPriceChart({ chart }: StockPriceChartProps) {
                 fill={`url(#gradient-${symbol})`}
                 fillOpacity={1}
                 dot={false}
-                activeDot={{ r: 6, fill: gradientColor, strokeWidth: 2, stroke: "white" }}
+                activeDot={{ r: 6, fill: gradientColor, strokeWidth: 2, stroke: "#212121" }}
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -121,18 +129,24 @@ export function StockPriceChart({ chart }: StockPriceChartProps) {
 
       <CardFooter className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Badge variant="secondary">
+          <Badge variant="secondary" className="bg-[#404040] text-[#ececf1]">
             Start: {formatPrice(metadata.start_price)}
           </Badge>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="secondary">
+          <Badge variant="secondary" className="bg-[#404040] text-[#ececf1]">
             End: {formatPrice(metadata.end_price)}
           </Badge>
         </div>
-        <Badge variant={metadata.percentage_growth >= 0 ? "default" : "destructive"} className={cn(
-          "font-semibold"
-        )}>
+        <Badge 
+          variant={metadata.percentage_growth >= 0 ? "default" : "destructive"} 
+          className={cn(
+            "font-semibold",
+            metadata.percentage_growth >= 0 
+              ? "bg-green-500/20 text-green-400 hover:bg-green-500/30" 
+              : "bg-red-500/20 text-red-400 hover:bg-red-500/30"
+          )}
+        >
           {metadata.percentage_growth >= 0 ? "+" : ""}
           {metadata.percentage_growth.toFixed(2)}%
         </Badge>
