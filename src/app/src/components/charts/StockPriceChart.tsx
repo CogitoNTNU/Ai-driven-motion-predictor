@@ -19,6 +19,10 @@ interface StockPriceChartProps {
 export function StockPriceChart({ chart }: StockPriceChartProps) {
   const { symbol, data, metadata } = chart;
 
+  // Safely get growth value with default
+  const growth = metadata?.percentage_growth ?? 0;
+  const isPositive = growth >= 0;
+
   // Format date for display
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -30,12 +34,17 @@ export function StockPriceChart({ chart }: StockPriceChartProps) {
 
   // Format price for Y-axis
   const formatPrice = (price: number) => {
-    return `$${price.toFixed(2)}`;
+    return `$${price?.toFixed(2) ?? "0.00"}`;
   };
 
   // Determine gradient color based on growth
-  const gradientColor =
-    metadata.percentage_growth >= 0 ? "#22c55e" : "#ef4444";
+  const gradientColor = isPositive ? "#22c55e" : "#ef4444";
+
+  // Format growth percentage
+  const formatGrowth = (val: number) => {
+    const sign = val >= 0 ? "+" : "";
+    return `${sign}${val?.toFixed(2) ?? "0.00"}%`;
+  };
 
   return (
     <Card className="border-[#4d4d4f] bg-[#2f2f2f] shadow-none">
@@ -44,21 +53,20 @@ export function StockPriceChart({ chart }: StockPriceChartProps) {
           <div>
             <CardTitle className="text-xl text-[#ececf1]">{symbol} Stock Price</CardTitle>
             <CardDescription className="text-[#9ca3af]">
-              {formatDate(metadata.start_date)} - {formatDate(metadata.end_date)}
-              {" "}({metadata.trading_days} trading days)
+              {formatDate(metadata?.start_date)} - {formatDate(metadata?.end_date)}
+              {" "}({metadata?.trading_days ?? 0} trading days)
             </CardDescription>
           </div>
           <Badge 
             variant="outline" 
             className={cn(
               "w-fit",
-              metadata.percentage_growth >= 0 
+              isPositive 
                 ? "border-green-500/50 text-green-400" 
                 : "border-red-500/50 text-red-400"
             )}
           >
-            {metadata.percentage_growth >= 0 ? "+" : ""}
-            {metadata.percentage_growth.toFixed(2)}%
+            {formatGrowth(growth)}
           </Badge>
         </div>
       </CardHeader>
@@ -130,25 +138,24 @@ export function StockPriceChart({ chart }: StockPriceChartProps) {
       <CardFooter className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="bg-[#404040] text-[#ececf1]">
-            Start: {formatPrice(metadata.start_price)}
+            Start: {formatPrice(metadata?.start_price)}
           </Badge>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="bg-[#404040] text-[#ececf1]">
-            End: {formatPrice(metadata.end_price)}
+            End: {formatPrice(metadata?.end_price)}
           </Badge>
         </div>
         <Badge 
-          variant={metadata.percentage_growth >= 0 ? "default" : "destructive"} 
+          variant={isPositive ? "default" : "destructive"} 
           className={cn(
             "font-semibold",
-            metadata.percentage_growth >= 0 
+            isPositive 
               ? "bg-green-500/20 text-green-400 hover:bg-green-500/30" 
               : "bg-red-500/20 text-red-400 hover:bg-red-500/30"
           )}
         >
-          {metadata.percentage_growth >= 0 ? "+" : ""}
-          {metadata.percentage_growth.toFixed(2)}%
+          {formatGrowth(growth)}
         </Badge>
       </CardFooter>
     </Card>

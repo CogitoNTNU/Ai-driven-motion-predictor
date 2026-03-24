@@ -20,17 +20,26 @@ const COLORS = ["#22c55e", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6"];
 export function StockPieChart({ chart }: StockPieChartProps) {
   const { symbol, metadata } = chart;
 
-  const formatPrice = (price: number) => `$${price.toFixed(2)}`;
+  // Safely get growth value with default
+  const growth = metadata?.percentage_growth ?? 0;
+  const isPositive = growth >= 0;
+
+  const formatPrice = (price: number) => `$${price?.toFixed(2) ?? "0.00"}`;
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
+  const formatGrowth = (val: number) => {
+    const sign = val >= 0 ? "+" : "";
+    return `${sign}${val?.toFixed(2) ?? "0.00"}%`;
+  };
+
   const pieData = [
-    { name: "Start Price", value: metadata.start_price },
-    { name: "End Price", value: metadata.end_price },
-    { name: "Absolute Growth", value: Math.abs(metadata.absolute_growth) },
+    { name: "Start Price", value: metadata?.start_price ?? 0 },
+    { name: "End Price", value: metadata?.end_price ?? 0 },
+    { name: "Absolute Growth", value: Math.abs(metadata?.absolute_growth ?? 0) },
   ];
 
   return (
@@ -40,21 +49,20 @@ export function StockPieChart({ chart }: StockPieChartProps) {
           <div>
             <CardTitle className="text-xl text-[#ececf1]">{symbol} Price Distribution</CardTitle>
             <CardDescription className="text-[#9ca3af]">
-              {formatDate(metadata.start_date)} - {formatDate(metadata.end_date)}
-              {" "}({metadata.trading_days} trading days)
+              {formatDate(metadata?.start_date)} - {formatDate(metadata?.end_date)}
+              {" "}({metadata?.trading_days ?? 0} trading days)
             </CardDescription>
           </div>
           <Badge 
             variant="outline" 
             className={cn(
               "w-fit",
-              metadata.percentage_growth >= 0 
+              isPositive 
                 ? "border-green-500/50 text-green-400" 
                 : "border-red-500/50 text-red-400"
             )}
           >
-            {metadata.percentage_growth >= 0 ? "+" : ""}
-            {metadata.percentage_growth.toFixed(2)}%
+            {formatGrowth(growth)}
           </Badge>
         </div>
       </CardHeader>
@@ -112,25 +120,24 @@ export function StockPieChart({ chart }: StockPieChartProps) {
       <CardFooter className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="bg-[#404040] text-[#ececf1]">
-            Start: {formatPrice(metadata.start_price)}
+            Start: {formatPrice(metadata?.start_price)}
           </Badge>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="bg-[#404040] text-[#ececf1]">
-            End: {formatPrice(metadata.end_price)}
+            End: {formatPrice(metadata?.end_price)}
           </Badge>
         </div>
         <Badge 
-          variant={metadata.percentage_growth >= 0 ? "default" : "destructive"} 
+          variant={isPositive ? "default" : "destructive"} 
           className={cn(
             "font-semibold",
-            metadata.percentage_growth >= 0 
+            isPositive 
               ? "bg-green-500/20 text-green-400 hover:bg-green-500/30" 
               : "bg-red-500/20 text-red-400 hover:bg-red-500/30"
           )}
         >
-          {metadata.percentage_growth >= 0 ? "+" : ""}
-          {metadata.percentage_growth.toFixed(2)}%
+          {formatGrowth(growth)}
         </Badge>
       </CardFooter>
     </Card>
