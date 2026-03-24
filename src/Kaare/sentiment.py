@@ -7,6 +7,22 @@ from functools import partial
 logger = logging.getLogger(__name__)
 
 _MODEL_NAME = "ProsusAI/finbert"
+_pipeline_instance = None
+
+
+def _get_pipeline():
+    global _pipeline_instance
+    if _pipeline_instance is None:
+        from transformers import pipeline
+        logger.info("Loading FinBERT model '%s' — this may take a moment on first run.", _MODEL_NAME)
+        _pipeline_instance = pipeline(
+            "text-classification",
+            model=_MODEL_NAME,
+            top_k=None,
+            truncation=True,
+            max_length=512,
+        )
+    return _pipeline_instance
 
 
 class FinBERTAnalyzer:
@@ -22,22 +38,9 @@ class FinBERTAnalyzer:
         # score is a float in [-1.0, 1.0]
     """
 
-    def __init__(self) -> None:
-        self._pipeline = None
 
     def _load(self):
-        if self._pipeline is None:
-            from transformers import pipeline
-
-            logger.info("Loading FinBERT model '%s' — this may take a moment on first run.", _MODEL_NAME)
-            self._pipeline = pipeline(
-                "text-classification",
-                model=_MODEL_NAME,
-                top_k=None,
-                truncation=True,
-                max_length=512,
-            )
-        return self._pipeline
+        return _get_pipeline()
 
     def _score_sync(self, texts: list[str]) -> float:
         """Run FinBERT on *texts* and return the average sentiment score.
