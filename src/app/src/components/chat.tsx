@@ -21,6 +21,36 @@ function extractChartsFromMessage(message: Message): ChartData[] {
 }
 
 /**
+ * Extract stock and sentiment charts from message parts.
+ * Returns paired charts when both stock and sentiment are present.
+ */
+function extractChartPairs(message: Message): Array<{ stock?: ChartData; sentiment?: ChartData }> {
+    const charts = extractChartsFromMessage(message);
+    if (charts.length === 0) return [];
+
+    // Group charts by symbol
+    const bySymbol: Record<string, { stock?: ChartData; sentiment?: ChartData }> = {};
+    
+    for (const chart of charts) {
+        const symbol = chart.symbol;
+        if (!bySymbol[symbol]) {
+            bySymbol[symbol] = {};
+        }
+        
+        if (chart.tool_name === "get_stock_growth" || chart.tool_name === "get_current_price") {
+            bySymbol[symbol].stock = chart;
+        } else if (chart.tool_name === "get_stock_news_sentiment") {
+            bySymbol[symbol].sentiment = chart;
+        } else {
+            // Default to stock chart
+            bySymbol[symbol].stock = chart;
+        }
+    }
+    
+    return Object.values(bySymbol);
+}
+
+/**
  * Extract tool calls from message parts.
  */
 function extractToolCalls(message: Message): Array<ToolCallPart | ToolResultPart> {
@@ -176,7 +206,7 @@ export function Chat() {
                         )}
 
                         {messages.map((message) => {
-                            const charts = message.role === "assistant" ? extractChartsFromMessage(message) : [];
+                            const chartPairs = message.role === "assistant" ? extractChartPairs(message) : [];
                             const toolCalls = message.role === "assistant" ? extractToolCalls(message) : [];
                             const isLastAssistantMessage = message.role === "assistant" && message.id === messages[messages.length - 1]?.id && isLoading;
 
@@ -221,10 +251,15 @@ export function Chat() {
                                                     <CitationRow toolCalls={toolCalls} />
                                                 )}
 
-                                                {charts.length > 0 && (
-                                                    <div className="space-y-4 pt-2">
-                                                        {charts.map((chart) => (
-                                                            <ChartRenderer key={chart.chart_id} chart={chart}/>
+                                                {chartPairs.length > 0 && (
+                                                    <div className="space-y-6 pt-2">
+                                                        {chartPairs.map((pair, idx) => (
+                                                            <div key={idx} className="rounded-xl border border-[#4d4d4f] bg-[#2f2f2f] p-5">
+                                                                <ChartRenderer 
+                                                                    chart={pair.stock || pair.sentiment!} 
+                                                                    sentimentChart={pair.sentiment}
+                                                                />
+                                                            </div>
                                                         ))}
                                                     </div>
                                                 )}

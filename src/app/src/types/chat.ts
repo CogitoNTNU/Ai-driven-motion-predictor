@@ -1,4 +1,31 @@
 /**
+ * Chart data point - supports both stock price and sentiment data
+ */
+export interface ChartDataPoint {
+  date: string;
+  price?: number;      // For stock price data
+  sentiment?: number;  // For sentiment data
+}
+
+/**
+ * Chart metadata - flexible to support both stock and sentiment data
+ */
+export interface ChartMetadata {
+  start_date: string;
+  end_date: string;
+  // Stock-specific fields
+  start_price?: number;
+  end_price?: number;
+  absolute_growth?: number;
+  percentage_growth?: number;
+  trading_days?: number;
+  // Sentiment-specific fields
+  article_count?: number;
+  avg_sentiment?: number;
+  sentiment_label?: string;
+}
+
+/**
  * Chart data structure received from the backend via data-chart parts
  */
 export interface ChartData {
@@ -6,19 +33,8 @@ export interface ChartData {
   chart_id: string;
   symbol: string;
   type: "line_chart" | "bar_chart" | "area_chart" | "pie_chart" | string;
-  data: Array<{
-    date: string;
-    price: number;
-  }>;
-  metadata: {
-    start_date: string;
-    end_date: string;
-    start_price: number;
-    end_price: number;
-    absolute_growth: number;
-    percentage_growth: number;
-    trading_days: number;
-  };
+  data: ChartDataPoint[];
+  metadata: ChartMetadata;
 }
 
 /**
