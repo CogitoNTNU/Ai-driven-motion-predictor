@@ -1,0 +1,4251 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../migrations/">
+      
+      
+        <link rel="next" href="../../providers/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>repository - PROJECT-TEMPLATE</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#src.Kaare.db.repository" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../../.." title="PROJECT-TEMPLATE" class="md-header__button md-logo" aria-label="PROJECT-TEMPLATE" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.19 14.19 6 18l3.81-8.19L18 6m-6-4A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2m0 8.9a1.1 1.1 0 0 0-1.1 1.1 1.1 1.1 0 0 0 1.1 1.1 1.1 1.1 0 0 0 1.1-1.1 1.1 1.1 0 0 0-1.1-1.1"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PROJECT-TEMPLATE
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              repository
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-blue" data-md-color-accent="deep-blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-blue" data-md-color-accent="deep-blue"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../../.." title="PROJECT-TEMPLATE" class="md-nav__button md-logo" aria-label="PROJECT-TEMPLATE" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.19 14.19 6 18l3.81-8.19L18 6m-6-4A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2m0 8.9a1.1 1.1 0 0 0-1.1 1.1 1.1 1.1 0 0 0 1.1 1.1 1.1 1.1 0 0 0 1.1-1.1 1.1 1.1 0 0 0-1.1-1.1"/></svg>
+
+    </a>
+    PROJECT-TEMPLATE
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    src
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    src
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../kaare_example/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    kaare_example
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../run_baseline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    run_baseline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../stock_predictor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stock_predictor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../yfinanceLoader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    yfinanceLoader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_6" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kaare
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_1_6" id="__nav_2_1_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_1_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_1_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kaare
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../client/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    config
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../debug_hf/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    debug_hf
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../seed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    seed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sentiment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sentiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../smoke_test/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    smoke_test
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_6_10" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    db
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_1_6_10" id="__nav_2_1_6_10_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_2_1_6_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_1_6_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    db
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../connection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    connection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../migrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    migrations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    repository
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.aggregate_daily_market_sentiment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;aggregate_daily_market_sentiment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" aggregate_daily_market_sentiment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.aggregate_daily_market_sentiment(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.aggregate_daily_ticker_sentiment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;aggregate_daily_ticker_sentiment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" aggregate_daily_ticker_sentiment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.aggregate_daily_ticker_sentiment(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_dates_missing_sentiment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_dates_missing_sentiment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" get_dates_missing_sentiment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_dates_missing_sentiment(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_dates_missing_sentiment(start)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;start
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_dates_missing_sentiment(end)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;end
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_macro_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_macro_data
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" get_macro_data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_macro_data(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_macro_data(start)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;start
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_macro_data(end)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;end
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_stock_ohlcv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_stock_ohlcv
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" get_stock_ohlcv">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_stock_ohlcv(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_stock_ohlcv(symbol)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;symbol
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_stock_ohlcv(start)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;start
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_stock_ohlcv(end)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;end
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_unscored_article_batch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_unscored_article_batch
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" get_unscored_article_batch">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_unscored_article_batch(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_unscored_article_batch(limit)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;limit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_article_sentiment_batch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;insert_article_sentiment_batch
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" insert_article_sentiment_batch">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_article_sentiment_batch(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_article_sentiment_batch(data)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;data
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_raw_news_batch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;insert_raw_news_batch
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" insert_raw_news_batch">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_raw_news_batch(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_raw_news_batch(records)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;records
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_raw_news_returning_ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;insert_raw_news_returning_ids
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" insert_raw_news_returning_ids">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_raw_news_returning_ids(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_raw_news_returning_ids(records)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;records
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_stock_ohlcv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;insert_stock_ohlcv
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" insert_stock_ohlcv">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_stock_ohlcv(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_stock_ohlcv(records)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;records
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.sync_sentiment_to_macro" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;sync_sentiment_to_macro
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" sync_sentiment_to_macro">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.sync_sentiment_to_macro(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.sync_sentiment_to_macro(start)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;start
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.sync_sentiment_to_macro(end)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;end
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.upsert_macro_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;upsert_macro_data
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" upsert_macro_data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.upsert_macro_data(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.upsert_macro_data(records)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;records
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_6_11" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../providers/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    providers
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_1_6_11" id="__nav_2_1_6_11_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_2_1_6_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1_6_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    providers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/finnhub_provider/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    finnhub_provider
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/hf_provider/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    hf_provider
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/yfinance_provider/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    yfinance_provider
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.aggregate_daily_market_sentiment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;aggregate_daily_market_sentiment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" aggregate_daily_market_sentiment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.aggregate_daily_market_sentiment(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.aggregate_daily_ticker_sentiment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;aggregate_daily_ticker_sentiment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" aggregate_daily_ticker_sentiment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.aggregate_daily_ticker_sentiment(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_dates_missing_sentiment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_dates_missing_sentiment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" get_dates_missing_sentiment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_dates_missing_sentiment(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_dates_missing_sentiment(start)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;start
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_dates_missing_sentiment(end)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;end
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_macro_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_macro_data
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" get_macro_data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_macro_data(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_macro_data(start)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;start
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_macro_data(end)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;end
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_stock_ohlcv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_stock_ohlcv
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" get_stock_ohlcv">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_stock_ohlcv(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_stock_ohlcv(symbol)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;symbol
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_stock_ohlcv(start)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;start
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_stock_ohlcv(end)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;end
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_unscored_article_batch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_unscored_article_batch
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" get_unscored_article_batch">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_unscored_article_batch(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.get_unscored_article_batch(limit)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;limit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_article_sentiment_batch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;insert_article_sentiment_batch
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" insert_article_sentiment_batch">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_article_sentiment_batch(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_article_sentiment_batch(data)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;data
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_raw_news_batch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;insert_raw_news_batch
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" insert_raw_news_batch">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_raw_news_batch(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_raw_news_batch(records)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;records
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_raw_news_returning_ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;insert_raw_news_returning_ids
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" insert_raw_news_returning_ids">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_raw_news_returning_ids(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_raw_news_returning_ids(records)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;records
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_stock_ohlcv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;insert_stock_ohlcv
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" insert_stock_ohlcv">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_stock_ohlcv(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.insert_stock_ohlcv(records)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;records
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.sync_sentiment_to_macro" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;sync_sentiment_to_macro
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" sync_sentiment_to_macro">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.sync_sentiment_to_macro(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.sync_sentiment_to_macro(start)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;start
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.sync_sentiment_to_macro(end)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;end
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.upsert_macro_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;upsert_macro_data
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" upsert_macro_data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.upsert_macro_data(pool)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.Kaare.db.repository.upsert_macro_data(records)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;records
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../../../../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Reference
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    src
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Kaare
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    db
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<h1 id="src.Kaare.db.repository" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-module"></code>            <span class="doc doc-object-name doc-module-name">src.Kaare.db.repository</span>
+
+
+</h1>
+
+    <div class="doc doc-contents first">
+
+        <p>Database read/write operations for stock_ohlcv and macro_data tables.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+<p><span class="doc-section-title">Functions:</span></p>
+    <ul>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-function&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-function-name&quot;&gt;aggregate_daily_market_sentiment&lt;/span&gt;
+
+
+  &lt;span class=&quot;doc doc-labels&quot;&gt;
+      &lt;small class=&quot;doc doc-label doc-label-async&quot;&gt;&lt;code&gt;async&lt;/code&gt;&lt;/small&gt;
+  &lt;/span&gt; (&lt;code&gt;src.Kaare.db.repository.aggregate_daily_market_sentiment&lt;/code&gt;)" href="#src.Kaare.db.repository.aggregate_daily_market_sentiment">aggregate_daily_market_sentiment</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Aggregate article-level scores into daily_market_sentiment.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-function&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-function-name&quot;&gt;aggregate_daily_ticker_sentiment&lt;/span&gt;
+
+
+  &lt;span class=&quot;doc doc-labels&quot;&gt;
+      &lt;small class=&quot;doc doc-label doc-label-async&quot;&gt;&lt;code&gt;async&lt;/code&gt;&lt;/small&gt;
+  &lt;/span&gt; (&lt;code&gt;src.Kaare.db.repository.aggregate_daily_ticker_sentiment&lt;/code&gt;)" href="#src.Kaare.db.repository.aggregate_daily_ticker_sentiment">aggregate_daily_ticker_sentiment</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Aggregate article-level scores into daily_ticker_sentiment per ticker.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-function&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-function-name&quot;&gt;get_dates_missing_sentiment&lt;/span&gt;
+
+
+  &lt;span class=&quot;doc doc-labels&quot;&gt;
+      &lt;small class=&quot;doc doc-label doc-label-async&quot;&gt;&lt;code&gt;async&lt;/code&gt;&lt;/small&gt;
+  &lt;/span&gt; (&lt;code&gt;src.Kaare.db.repository.get_dates_missing_sentiment&lt;/code&gt;)" href="#src.Kaare.db.repository.get_dates_missing_sentiment">get_dates_missing_sentiment</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Return dates in [start, end] that exist in macro_data but have no sentiment score.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-function&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-function-name&quot;&gt;get_macro_data&lt;/span&gt;
+
+
+  &lt;span class=&quot;doc doc-labels&quot;&gt;
+      &lt;small class=&quot;doc doc-label doc-label-async&quot;&gt;&lt;code&gt;async&lt;/code&gt;&lt;/small&gt;
+  &lt;/span&gt; (&lt;code&gt;src.Kaare.db.repository.get_macro_data&lt;/code&gt;)" href="#src.Kaare.db.repository.get_macro_data">get_macro_data</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Fetch macro_data rows within [start, end] from the database.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-function&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-function-name&quot;&gt;get_stock_ohlcv&lt;/span&gt;
+
+
+  &lt;span class=&quot;doc doc-labels&quot;&gt;
+      &lt;small class=&quot;doc doc-label doc-label-async&quot;&gt;&lt;code&gt;async&lt;/code&gt;&lt;/small&gt;
+  &lt;/span&gt; (&lt;code&gt;src.Kaare.db.repository.get_stock_ohlcv&lt;/code&gt;)" href="#src.Kaare.db.repository.get_stock_ohlcv">get_stock_ohlcv</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Fetch OHLCV rows for <em>symbol</em> within [start, end] from the database.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-function&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-function-name&quot;&gt;get_unscored_article_batch&lt;/span&gt;
+
+
+  &lt;span class=&quot;doc doc-labels&quot;&gt;
+      &lt;small class=&quot;doc doc-label doc-label-async&quot;&gt;&lt;code&gt;async&lt;/code&gt;&lt;/small&gt;
+  &lt;/span&gt; (&lt;code&gt;src.Kaare.db.repository.get_unscored_article_batch&lt;/code&gt;)" href="#src.Kaare.db.repository.get_unscored_article_batch">get_unscored_article_batch</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Fetch articles that have not yet been scored by FinBERT.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-function&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-function-name&quot;&gt;insert_article_sentiment_batch&lt;/span&gt;
+
+
+  &lt;span class=&quot;doc doc-labels&quot;&gt;
+      &lt;small class=&quot;doc doc-label doc-label-async&quot;&gt;&lt;code&gt;async&lt;/code&gt;&lt;/small&gt;
+  &lt;/span&gt; (&lt;code&gt;src.Kaare.db.repository.insert_article_sentiment_batch&lt;/code&gt;)" href="#src.Kaare.db.repository.insert_article_sentiment_batch">insert_article_sentiment_batch</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Insert FinBERT scores for a batch of articles, skipping duplicates.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-function&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-function-name&quot;&gt;insert_raw_news_batch&lt;/span&gt;
+
+
+  &lt;span class=&quot;doc doc-labels&quot;&gt;
+      &lt;small class=&quot;doc doc-label doc-label-async&quot;&gt;&lt;code&gt;async&lt;/code&gt;&lt;/small&gt;
+  &lt;/span&gt; (&lt;code&gt;src.Kaare.db.repository.insert_raw_news_batch&lt;/code&gt;)" href="#src.Kaare.db.repository.insert_raw_news_batch">insert_raw_news_batch</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Insert a batch of raw news articles, skipping duplicates.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-function&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-function-name&quot;&gt;insert_raw_news_returning_ids&lt;/span&gt;
+
+
+  &lt;span class=&quot;doc doc-labels&quot;&gt;
+      &lt;small class=&quot;doc doc-label doc-label-async&quot;&gt;&lt;code&gt;async&lt;/code&gt;&lt;/small&gt;
+  &lt;/span&gt; (&lt;code&gt;src.Kaare.db.repository.insert_raw_news_returning_ids&lt;/code&gt;)" href="#src.Kaare.db.repository.insert_raw_news_returning_ids">insert_raw_news_returning_ids</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Insert raw news articles and return their database IDs.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-function&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-function-name&quot;&gt;insert_stock_ohlcv&lt;/span&gt;
+
+
+  &lt;span class=&quot;doc doc-labels&quot;&gt;
+      &lt;small class=&quot;doc doc-label doc-label-async&quot;&gt;&lt;code&gt;async&lt;/code&gt;&lt;/small&gt;
+  &lt;/span&gt; (&lt;code&gt;src.Kaare.db.repository.insert_stock_ohlcv&lt;/code&gt;)" href="#src.Kaare.db.repository.insert_stock_ohlcv">insert_stock_ohlcv</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Insert OHLCV records, ignoring conflicts on (symbol, date).</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-function&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-function-name&quot;&gt;sync_sentiment_to_macro&lt;/span&gt;
+
+
+  &lt;span class=&quot;doc doc-labels&quot;&gt;
+      &lt;small class=&quot;doc doc-label doc-label-async&quot;&gt;&lt;code&gt;async&lt;/code&gt;&lt;/small&gt;
+  &lt;/span&gt; (&lt;code&gt;src.Kaare.db.repository.sync_sentiment_to_macro&lt;/code&gt;)" href="#src.Kaare.db.repository.sync_sentiment_to_macro">sync_sentiment_to_macro</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Copy sentiment scores from daily_market_sentiment into macro_data.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-function&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-function-name&quot;&gt;upsert_macro_data&lt;/span&gt;
+
+
+  &lt;span class=&quot;doc doc-labels&quot;&gt;
+      &lt;small class=&quot;doc doc-label doc-label-async&quot;&gt;&lt;code&gt;async&lt;/code&gt;&lt;/small&gt;
+  &lt;/span&gt; (&lt;code&gt;src.Kaare.db.repository.upsert_macro_data&lt;/code&gt;)" href="#src.Kaare.db.repository.upsert_macro_data">upsert_macro_data</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Upsert macro_data records (insert or update on date conflict).</p>
+            </div>
+          </li>
+    </ul>
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="src.Kaare.db.repository.aggregate_daily_market_sentiment" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">aggregate_daily_market_sentiment</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">aggregate_daily_market_sentiment</span><span class="p">(</span><span class="n">pool</span><span class="p">:</span> <span class="n">Pool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Aggregate article-level scores into daily_market_sentiment.</p>
+<p>Computes mean, median, std, article count, pct_positive, pct_negative,
+and rolling 3-day and 7-day averages.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.aggregate_daily_market_sentiment(pool)" class="doc doc-heading doc-heading-parameter">              <b><code>pool</code></b>
+</h3>              (<code><span title="asyncpg.Pool">Pool</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Active asyncpg pool.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="int">int</span></code>
+          –
+          <div class="doc-md-description">
+            <p>Number of rows upserted.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/Kaare/db/repository.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">aggregate_daily_market_sentiment</span><span class="p">(</span><span class="n">pool</span><span class="p">:</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">Pool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Aggregate article-level scores into daily_market_sentiment.</span>
+
+<span class="sd">    Computes mean, median, std, article count, pct_positive, pct_negative,</span>
+<span class="sd">    and rolling 3-day and 7-day averages.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pool: Active asyncpg pool.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Number of rows upserted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">upsert_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        INSERT INTO daily_market_sentiment</span>
+<span class="s2">            (trading_date, mean_score, median_score, std_score,</span>
+<span class="s2">             article_count, pct_positive, pct_negative)</span>
+<span class="s2">        SELECT</span>
+<span class="s2">            rn.trading_date,</span>
+<span class="s2">            AVG(s.net_score),</span>
+<span class="s2">            PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY s.net_score),</span>
+<span class="s2">            STDDEV(s.net_score),</span>
+<span class="s2">            COUNT(*),</span>
+<span class="s2">            AVG(CASE WHEN s.positive &gt; 0.5 THEN 1.0 ELSE 0.0 END),</span>
+<span class="s2">            AVG(CASE WHEN s.negative &gt; 0.5 THEN 1.0 ELSE 0.0 END)</span>
+<span class="s2">        FROM raw_news rn</span>
+<span class="s2">        JOIN article_sentiment s ON s.raw_news_id = rn.id</span>
+<span class="s2">        GROUP BY rn.trading_date</span>
+<span class="s2">        ON CONFLICT (trading_date) DO UPDATE SET</span>
+<span class="s2">            mean_score    = EXCLUDED.mean_score,</span>
+<span class="s2">            median_score  = EXCLUDED.median_score,</span>
+<span class="s2">            std_score     = EXCLUDED.std_score,</span>
+<span class="s2">            article_count = EXCLUDED.article_count,</span>
+<span class="s2">            pct_positive  = EXCLUDED.pct_positive,</span>
+<span class="s2">            pct_negative  = EXCLUDED.pct_negative,</span>
+<span class="s2">            updated_at    = NOW()</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="n">rolling_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        UPDATE daily_market_sentiment d SET</span>
+<span class="s2">            mean_score_3d = sub.avg_3d,</span>
+<span class="s2">            mean_score_7d = sub.avg_7d</span>
+<span class="s2">        FROM (</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                trading_date,</span>
+<span class="s2">                AVG(mean_score) OVER (</span>
+<span class="s2">                    ORDER BY trading_date</span>
+<span class="s2">                    ROWS BETWEEN 2 PRECEDING AND CURRENT ROW</span>
+<span class="s2">                ) AS avg_3d,</span>
+<span class="s2">                AVG(mean_score) OVER (</span>
+<span class="s2">                    ORDER BY trading_date</span>
+<span class="s2">                    ROWS BETWEEN 6 PRECEDING AND CURRENT ROW</span>
+<span class="s2">                ) AS avg_7d</span>
+<span class="s2">            FROM daily_market_sentiment</span>
+<span class="s2">        ) sub</span>
+<span class="s2">        WHERE d.trading_date = sub.trading_date</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">pool</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">upsert_query</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">rolling_query</span><span class="p">)</span>
+    <span class="c1"># result is like &quot;INSERT 0 N&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="src.Kaare.db.repository.aggregate_daily_ticker_sentiment" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">aggregate_daily_ticker_sentiment</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">aggregate_daily_ticker_sentiment</span><span class="p">(</span><span class="n">pool</span><span class="p">:</span> <span class="n">Pool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Aggregate article-level scores into daily_ticker_sentiment per ticker.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.aggregate_daily_ticker_sentiment(pool)" class="doc doc-heading doc-heading-parameter">              <b><code>pool</code></b>
+</h3>              (<code><span title="asyncpg.Pool">Pool</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Active asyncpg pool.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="int">int</span></code>
+          –
+          <div class="doc-md-description">
+            <p>Number of rows upserted.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/Kaare/db/repository.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">aggregate_daily_ticker_sentiment</span><span class="p">(</span><span class="n">pool</span><span class="p">:</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">Pool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Aggregate article-level scores into daily_ticker_sentiment per ticker.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pool: Active asyncpg pool.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Number of rows upserted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        INSERT INTO daily_ticker_sentiment</span>
+<span class="s2">            (trading_date, ticker, mean_score, article_count,</span>
+<span class="s2">             std_score, pct_positive, pct_negative)</span>
+<span class="s2">        SELECT</span>
+<span class="s2">            rn.trading_date,</span>
+<span class="s2">            UNNEST(rn.tickers) AS ticker,</span>
+<span class="s2">            AVG(s.net_score),</span>
+<span class="s2">            COUNT(*),</span>
+<span class="s2">            STDDEV(s.net_score),</span>
+<span class="s2">            AVG(CASE WHEN s.positive &gt; 0.5 THEN 1.0 ELSE 0.0 END),</span>
+<span class="s2">            AVG(CASE WHEN s.negative &gt; 0.5 THEN 1.0 ELSE 0.0 END)</span>
+<span class="s2">        FROM raw_news rn</span>
+<span class="s2">        JOIN article_sentiment s ON s.raw_news_id = rn.id</span>
+<span class="s2">        WHERE rn.tickers IS NOT NULL AND array_length(rn.tickers, 1) &gt; 0</span>
+<span class="s2">        GROUP BY rn.trading_date, UNNEST(rn.tickers)</span>
+<span class="s2">        ON CONFLICT (trading_date, ticker) DO UPDATE SET</span>
+<span class="s2">            mean_score    = EXCLUDED.mean_score,</span>
+<span class="s2">            article_count = EXCLUDED.article_count,</span>
+<span class="s2">            std_score     = EXCLUDED.std_score,</span>
+<span class="s2">            pct_positive  = EXCLUDED.pct_positive,</span>
+<span class="s2">            pct_negative  = EXCLUDED.pct_negative,</span>
+<span class="s2">            updated_at    = NOW()</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">pool</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="src.Kaare.db.repository.get_dates_missing_sentiment" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">get_dates_missing_sentiment</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">get_dates_missing_sentiment</span><span class="p">(</span><span class="n">pool</span><span class="p">:</span> <span class="n">Pool</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="n">date</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return dates in [start, end] that exist in macro_data but have no sentiment score.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.get_dates_missing_sentiment(pool)" class="doc doc-heading doc-heading-parameter">              <b><code>pool</code></b>
+</h3>              (<code><span title="asyncpg.Pool">Pool</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Active asyncpg pool.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.get_dates_missing_sentiment(start)" class="doc doc-heading doc-heading-parameter">              <b><code>start</code></b>
+</h3>              (<code><span title="datetime.date">date</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Inclusive start date.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.get_dates_missing_sentiment(end)" class="doc doc-heading doc-heading-parameter">              <b><code>end</code></b>
+</h3>              (<code><span title="datetime.date">date</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Inclusive end date.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="set">set</span>[<span title="datetime.date">date</span>]</code>
+          –
+          <div class="doc-md-description">
+            <p>Set of dates where <code>news_sentiment_score IS NULL</code>.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/Kaare/db/repository.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_dates_missing_sentiment</span><span class="p">(</span>
+    <span class="n">pool</span><span class="p">:</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">Pool</span><span class="p">,</span>
+    <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+    <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return dates in [start, end] that exist in macro_data but have no sentiment score.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pool: Active asyncpg pool.</span>
+<span class="sd">        start: Inclusive start date.</span>
+<span class="sd">        end: Inclusive end date.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Set of dates where ``news_sentiment_score IS NULL``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        SELECT date FROM macro_data</span>
+<span class="s2">        WHERE date BETWEEN $1 AND $2 AND news_sentiment_score IS NULL</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">pool</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="src.Kaare.db.repository.get_macro_data" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">get_macro_data</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">get_macro_data</span><span class="p">(</span><span class="n">pool</span><span class="p">:</span> <span class="n">Pool</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="n">date</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MacroData</span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Fetch macro_data rows within [start, end] from the database.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.get_macro_data(pool)" class="doc doc-heading doc-heading-parameter">              <b><code>pool</code></b>
+</h3>              (<code><span title="asyncpg.Pool">Pool</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Active asyncpg pool.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.get_macro_data(start)" class="doc doc-heading doc-heading-parameter">              <b><code>start</code></b>
+</h3>              (<code><span title="datetime.date">date</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Inclusive start date.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.get_macro_data(end)" class="doc doc-heading doc-heading-parameter">              <b><code>end</code></b>
+</h3>              (<code><span title="datetime.date">date</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Inclusive end date.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="list">list</span>[<span title="Kaare.models.MacroData">MacroData</span>]</code>
+          –
+          <div class="doc-md-description">
+            <p>List of :class:<code>~Kaare.models.MacroData</code> ordered by date ascending.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/Kaare/db/repository.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_macro_data</span><span class="p">(</span>
+    <span class="n">pool</span><span class="p">:</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">Pool</span><span class="p">,</span>
+    <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+    <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MacroData</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch macro_data rows within [start, end] from the database.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pool: Active asyncpg pool.</span>
+<span class="sd">        start: Inclusive start date.</span>
+<span class="sd">        end: Inclusive end date.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of :class:`~Kaare.models.MacroData` ordered by date ascending.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        SELECT date, gold_price, treasury_yield_10y, vix, news_sentiment_score</span>
+<span class="s2">        FROM macro_data</span>
+<span class="s2">        WHERE date BETWEEN $1 AND $2</span>
+<span class="s2">        ORDER BY date</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">pool</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">MacroData</span><span class="p">(</span>
+            <span class="n">date</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">],</span>
+            <span class="n">gold_price</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;gold_price&quot;</span><span class="p">],</span>
+            <span class="n">treasury_yield_10y</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;treasury_yield_10y&quot;</span><span class="p">],</span>
+            <span class="n">vix</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;vix&quot;</span><span class="p">],</span>
+            <span class="n">news_sentiment_score</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;news_sentiment_score&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span>
+    <span class="p">]</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="src.Kaare.db.repository.get_stock_ohlcv" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">get_stock_ohlcv</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">get_stock_ohlcv</span><span class="p">(</span><span class="n">pool</span><span class="p">:</span> <span class="n">Pool</span><span class="p">,</span> <span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="n">date</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">StockOHLCV</span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Fetch OHLCV rows for <em>symbol</em> within [start, end] from the database.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.get_stock_ohlcv(pool)" class="doc doc-heading doc-heading-parameter">              <b><code>pool</code></b>
+</h3>              (<code><span title="asyncpg.Pool">Pool</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Active asyncpg pool.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.get_stock_ohlcv(symbol)" class="doc doc-heading doc-heading-parameter">              <b><code>symbol</code></b>
+</h3>              (<code><span title="str">str</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Ticker symbol.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.get_stock_ohlcv(start)" class="doc doc-heading doc-heading-parameter">              <b><code>start</code></b>
+</h3>              (<code><span title="datetime.date">date</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Inclusive start date.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.get_stock_ohlcv(end)" class="doc doc-heading doc-heading-parameter">              <b><code>end</code></b>
+</h3>              (<code><span title="datetime.date">date</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Inclusive end date.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="list">list</span>[<span title="Kaare.models.StockOHLCV">StockOHLCV</span>]</code>
+          –
+          <div class="doc-md-description">
+            <p>List of :class:<code>~Kaare.models.StockOHLCV</code> ordered by date ascending.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/Kaare/db/repository.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_stock_ohlcv</span><span class="p">(</span>
+    <span class="n">pool</span><span class="p">:</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">Pool</span><span class="p">,</span>
+    <span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+    <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">StockOHLCV</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch OHLCV rows for *symbol* within [start, end] from the database.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pool: Active asyncpg pool.</span>
+<span class="sd">        symbol: Ticker symbol.</span>
+<span class="sd">        start: Inclusive start date.</span>
+<span class="sd">        end: Inclusive end date.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of :class:`~Kaare.models.StockOHLCV` ordered by date ascending.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        SELECT symbol, date, open, high, low, close, volume</span>
+<span class="s2">        FROM stock_ohlcv</span>
+<span class="s2">        WHERE symbol = $1 AND date BETWEEN $2 AND $3</span>
+<span class="s2">        ORDER BY date</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">pool</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">StockOHLCV</span><span class="p">(</span>
+            <span class="n">symbol</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;symbol&quot;</span><span class="p">],</span>
+            <span class="n">date</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">],</span>
+            <span class="nb">open</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;open&quot;</span><span class="p">],</span>
+            <span class="n">high</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">],</span>
+            <span class="n">low</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">],</span>
+            <span class="n">close</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;close&quot;</span><span class="p">],</span>
+            <span class="n">volume</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;volume&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span>
+    <span class="p">]</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="src.Kaare.db.repository.get_unscored_article_batch" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">get_unscored_article_batch</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">get_unscored_article_batch</span><span class="p">(</span><span class="n">pool</span><span class="p">:</span> <span class="n">Pool</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Fetch articles that have not yet been scored by FinBERT.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.get_unscored_article_batch(pool)" class="doc doc-heading doc-heading-parameter">              <b><code>pool</code></b>
+</h3>              (<code><span title="asyncpg.Pool">Pool</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Active asyncpg pool.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.get_unscored_article_batch(limit)" class="doc doc-heading doc-heading-parameter">              <b><code>limit</code></b>
+</h3>              (<code><span title="int">int</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Maximum number of rows to return.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="list">list</span>[<span title="tuple">tuple</span>[<span title="int">int</span>, <span title="str">str</span>]]</code>
+          –
+          <div class="doc-md-description">
+            <p>List of <code>(id, text)</code> tuples ordered by id.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/Kaare/db/repository.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_unscored_article_batch</span><span class="p">(</span><span class="n">pool</span><span class="p">:</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">Pool</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch articles that have not yet been scored by FinBERT.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pool: Active asyncpg pool.</span>
+<span class="sd">        limit: Maximum number of rows to return.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of ``(id, text)`` tuples ordered by id.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        SELECT rn.id, rn.text</span>
+<span class="s2">        FROM raw_news rn</span>
+<span class="s2">        LEFT JOIN article_sentiment s ON s.raw_news_id = rn.id</span>
+<span class="s2">        WHERE s.id IS NULL</span>
+<span class="s2">        ORDER BY rn.id</span>
+<span class="s2">        LIMIT $1</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">pool</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">limit</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="src.Kaare.db.repository.insert_article_sentiment_batch" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">insert_article_sentiment_batch</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">insert_article_sentiment_batch</span><span class="p">(</span><span class="n">pool</span><span class="p">:</span> <span class="n">Pool</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Insert FinBERT scores for a batch of articles, skipping duplicates.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.insert_article_sentiment_batch(pool)" class="doc doc-heading doc-heading-parameter">              <b><code>pool</code></b>
+</h3>              (<code><span title="asyncpg.Pool">Pool</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Active asyncpg pool.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.insert_article_sentiment_batch(data)" class="doc doc-heading doc-heading-parameter">              <b><code>data</code></b>
+</h3>              (<code><span title="list">list</span>[<span title="tuple">tuple</span>[<span title="int">int</span>, <span title="dict">dict</span>]]</code>)
+          –
+          <div class="doc-md-description">
+            <p>List of <code>(raw_news_id, score_dict)</code> where score_dict has keys
+<code>positive</code>, <code>negative</code>, <code>neutral</code>, <code>net_score</code>.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/Kaare/db/repository.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">insert_article_sentiment_batch</span><span class="p">(</span>
+    <span class="n">pool</span><span class="p">:</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">Pool</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Insert FinBERT scores for a batch of articles, skipping duplicates.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pool: Active asyncpg pool.</span>
+<span class="sd">        data: List of ``(raw_news_id, score_dict)`` where score_dict has keys</span>
+<span class="sd">            ``positive``, ``negative``, ``neutral``, ``net_score``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        INSERT INTO article_sentiment (raw_news_id, positive, negative, neutral, net_score)</span>
+<span class="s2">        VALUES ($1, $2, $3, $4, $5)</span>
+<span class="s2">        ON CONFLICT (raw_news_id) DO NOTHING</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">pool</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+            <span class="n">query</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="p">(</span><span class="n">raw_news_id</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;positive&quot;</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;negative&quot;</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;neutral&quot;</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;net_score&quot;</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">raw_news_id</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">data</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="src.Kaare.db.repository.insert_raw_news_batch" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">insert_raw_news_batch</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">insert_raw_news_batch</span><span class="p">(</span><span class="n">pool</span><span class="p">:</span> <span class="n">Pool</span><span class="p">,</span> <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">RawNews</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Insert a batch of raw news articles, skipping duplicates.</p>
+<p>Deduplication is based on <code>(text_hash, trading_date)</code>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.insert_raw_news_batch(pool)" class="doc doc-heading doc-heading-parameter">              <b><code>pool</code></b>
+</h3>              (<code><span title="asyncpg.Pool">Pool</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Active asyncpg pool.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.insert_raw_news_batch(records)" class="doc doc-heading doc-heading-parameter">              <b><code>records</code></b>
+</h3>              (<code><span title="list">list</span>[<span title="Kaare.models.RawNews">RawNews</span>]</code>)
+          –
+          <div class="doc-md-description">
+            <p>Articles to insert.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="int">int</span></code>
+          –
+          <div class="doc-md-description">
+            <p>Number of rows actually inserted.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/Kaare/db/repository.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">insert_raw_news_batch</span><span class="p">(</span><span class="n">pool</span><span class="p">:</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">Pool</span><span class="p">,</span> <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">RawNews</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Insert a batch of raw news articles, skipping duplicates.</span>
+
+<span class="sd">    Deduplication is based on ``(text_hash, trading_date)``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pool: Active asyncpg pool.</span>
+<span class="sd">        records: Articles to insert.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Number of rows actually inserted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">records</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        INSERT INTO raw_news (date_utc, trading_date, text, text_hash, dataset_subset, source, tickers)</span>
+<span class="s2">        VALUES ($1, $2, $3, $4, $5, $6, $7)</span>
+<span class="s2">        ON CONFLICT (text_hash, trading_date) DO NOTHING</span>
+<span class="s2">        RETURNING id</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">pool</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+            <span class="n">query</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">date_utc</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">trading_date</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text_hash</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">dataset_subset</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">tickers</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">records</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+    <span class="c1"># executemany returns the status string; count RETURNING rows instead</span>
+    <span class="c1"># by checking affected rows via a simpler approach</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">)</span>  <span class="c1"># approximate; dedup happens silently</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="src.Kaare.db.repository.insert_raw_news_returning_ids" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">insert_raw_news_returning_ids</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">insert_raw_news_returning_ids</span><span class="p">(</span><span class="n">pool</span><span class="p">:</span> <span class="n">Pool</span><span class="p">,</span> <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">RawNews</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Insert raw news articles and return their database IDs.</p>
+<p>Uses <code>ON CONFLICT DO UPDATE</code> (no-op) so the ID is always returned,
+whether the row was newly inserted or already existed.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.insert_raw_news_returning_ids(pool)" class="doc doc-heading doc-heading-parameter">              <b><code>pool</code></b>
+</h3>              (<code><span title="asyncpg.Pool">Pool</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Active asyncpg pool.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.insert_raw_news_returning_ids(records)" class="doc doc-heading doc-heading-parameter">              <b><code>records</code></b>
+</h3>              (<code><span title="list">list</span>[<span title="Kaare.models.RawNews">RawNews</span>]</code>)
+          –
+          <div class="doc-md-description">
+            <p>Articles to insert.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="list">list</span>[<span title="int">int</span>]</code>
+          –
+          <div class="doc-md-description">
+            <p>List of IDs in the same order as <em>records</em>.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/Kaare/db/repository.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">insert_raw_news_returning_ids</span><span class="p">(</span>
+    <span class="n">pool</span><span class="p">:</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">Pool</span><span class="p">,</span>
+    <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">RawNews</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Insert raw news articles and return their database IDs.</span>
+
+<span class="sd">    Uses ``ON CONFLICT DO UPDATE`` (no-op) so the ID is always returned,</span>
+<span class="sd">    whether the row was newly inserted or already existed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pool: Active asyncpg pool.</span>
+<span class="sd">        records: Articles to insert.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of IDs in the same order as *records*.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">records</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        INSERT INTO raw_news (date_utc, trading_date, text, text_hash, dataset_subset, source, tickers)</span>
+<span class="s2">        VALUES ($1, $2, $3, $4, $5, $6, $7)</span>
+<span class="s2">        ON CONFLICT (text_hash, trading_date) DO UPDATE SET text = EXCLUDED.text</span>
+<span class="s2">        RETURNING id</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="n">ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">pool</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">fetchrow</span><span class="p">(</span>
+                <span class="n">query</span><span class="p">,</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">date_utc</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">trading_date</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text_hash</span><span class="p">,</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">dataset_subset</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">tickers</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">ids</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="src.Kaare.db.repository.insert_stock_ohlcv" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">insert_stock_ohlcv</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">insert_stock_ohlcv</span><span class="p">(</span><span class="n">pool</span><span class="p">:</span> <span class="n">Pool</span><span class="p">,</span> <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">StockOHLCV</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Insert OHLCV records, ignoring conflicts on (symbol, date).</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.insert_stock_ohlcv(pool)" class="doc doc-heading doc-heading-parameter">              <b><code>pool</code></b>
+</h3>              (<code><span title="asyncpg.Pool">Pool</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Active asyncpg pool.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.insert_stock_ohlcv(records)" class="doc doc-heading doc-heading-parameter">              <b><code>records</code></b>
+</h3>              (<code><span title="list">list</span>[<span title="Kaare.models.StockOHLCV">StockOHLCV</span>]</code>)
+          –
+          <div class="doc-md-description">
+            <p>Records to insert.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/Kaare/db/repository.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">insert_stock_ohlcv</span><span class="p">(</span>
+    <span class="n">pool</span><span class="p">:</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">Pool</span><span class="p">,</span>
+    <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">StockOHLCV</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Insert OHLCV records, ignoring conflicts on (symbol, date).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pool: Active asyncpg pool.</span>
+<span class="sd">        records: Records to insert.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">records</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        INSERT INTO stock_ohlcv (symbol, date, open, high, low, close, volume)</span>
+<span class="s2">        VALUES ($1, $2, $3, $4, $5, $6, $7)</span>
+<span class="s2">        ON CONFLICT (symbol, date) DO NOTHING</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">pool</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+            <span class="n">query</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">open</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">high</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">low</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">close</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">records</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="src.Kaare.db.repository.sync_sentiment_to_macro" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">sync_sentiment_to_macro</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">sync_sentiment_to_macro</span><span class="p">(</span><span class="n">pool</span><span class="p">:</span> <span class="n">Pool</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="n">date</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Copy sentiment scores from daily_market_sentiment into macro_data.</p>
+<p>Only updates rows where <code>news_sentiment_score</code> is currently <code>NULL</code>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.sync_sentiment_to_macro(pool)" class="doc doc-heading doc-heading-parameter">              <b><code>pool</code></b>
+</h3>              (<code><span title="asyncpg.Pool">Pool</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Active asyncpg pool.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.sync_sentiment_to_macro(start)" class="doc doc-heading doc-heading-parameter">              <b><code>start</code></b>
+</h3>              (<code><span title="datetime.date">date</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Inclusive start date.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.sync_sentiment_to_macro(end)" class="doc doc-heading doc-heading-parameter">              <b><code>end</code></b>
+</h3>              (<code><span title="datetime.date">date</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Inclusive end date.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/Kaare/db/repository.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">sync_sentiment_to_macro</span><span class="p">(</span>
+    <span class="n">pool</span><span class="p">:</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">Pool</span><span class="p">,</span>
+    <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+    <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Copy sentiment scores from daily_market_sentiment into macro_data.</span>
+
+<span class="sd">    Only updates rows where ``news_sentiment_score`` is currently ``NULL``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pool: Active asyncpg pool.</span>
+<span class="sd">        start: Inclusive start date.</span>
+<span class="sd">        end: Inclusive end date.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        UPDATE macro_data m</span>
+<span class="s2">        SET news_sentiment_score = dms.mean_score</span>
+<span class="s2">        FROM daily_market_sentiment dms</span>
+<span class="s2">        WHERE m.date = dms.trading_date</span>
+<span class="s2">          AND m.date BETWEEN $1 AND $2</span>
+<span class="s2">          AND m.news_sentiment_score IS NULL</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">pool</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="src.Kaare.db.repository.upsert_macro_data" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">upsert_macro_data</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">upsert_macro_data</span><span class="p">(</span><span class="n">pool</span><span class="p">:</span> <span class="n">Pool</span><span class="p">,</span> <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MacroData</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Upsert macro_data records (insert or update on date conflict).</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.upsert_macro_data(pool)" class="doc doc-heading doc-heading-parameter">              <b><code>pool</code></b>
+</h3>              (<code><span title="asyncpg.Pool">Pool</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Active asyncpg pool.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="src.Kaare.db.repository.upsert_macro_data(records)" class="doc doc-heading doc-heading-parameter">              <b><code>records</code></b>
+</h3>              (<code><span title="list">list</span>[<span title="Kaare.models.MacroData">MacroData</span>]</code>)
+          –
+          <div class="doc-md-description">
+            <p>Records to upsert.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/Kaare/db/repository.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">upsert_macro_data</span><span class="p">(</span>
+    <span class="n">pool</span><span class="p">:</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">Pool</span><span class="p">,</span>
+    <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MacroData</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Upsert macro_data records (insert or update on date conflict).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pool: Active asyncpg pool.</span>
+<span class="sd">        records: Records to upsert.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">records</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        INSERT INTO macro_data (date, gold_price, treasury_yield_10y, vix, news_sentiment_score)</span>
+<span class="s2">        VALUES ($1, $2, $3, $4, $5)</span>
+<span class="s2">        ON CONFLICT (date) DO UPDATE</span>
+<span class="s2">            SET gold_price            = COALESCE(EXCLUDED.gold_price, macro_data.gold_price),</span>
+<span class="s2">                treasury_yield_10y    = COALESCE(EXCLUDED.treasury_yield_10y, macro_data.treasury_yield_10y),</span>
+<span class="s2">                vix                   = COALESCE(EXCLUDED.vix, macro_data.vix),</span>
+<span class="s2">                news_sentiment_score  = COALESCE(EXCLUDED.news_sentiment_score, macro_data.news_sentiment_score)</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">pool</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+            <span class="n">query</span><span class="p">,</span>
+            <span class="p">[(</span><span class="n">r</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">gold_price</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">treasury_yield_10y</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">vix</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">news_sentiment_score</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">records</span><span class="p">],</span>
+        <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../migrations/" class="md-footer__link md-footer__link--prev" aria-label="Previous: migrations">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                migrations
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../providers/" class="md-footer__link md-footer__link--next" aria-label="Next: providers">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                providers
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../../..", "features": ["content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tabs.link", "content.tooltips", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.path", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "../../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
