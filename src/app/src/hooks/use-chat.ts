@@ -36,12 +36,23 @@ export function useChat(options: UseChatOptions) {
     const [input, setInput] = useState("");
 
     const {
-        messages: aiMessages, sendMessage, status, stop,
+        messages: aiMessages, sendMessage, status, stop, error,
     } = useAIChat({
         transport: new DefaultChatTransport({
             api: options.api,
         }),
+        onError: (err) => {
+            console.error("Chat error:", err);
+        },
+        onFinish: (message) => {
+            console.log("Chat finished:", message);
+        },
     });
+    
+    // Log errors
+    if (error) {
+        console.error("useChat error:", error);
+    }
 
     const messages = transformMessages(aiMessages);
 
@@ -65,6 +76,7 @@ export function useChat(options: UseChatOptions) {
         handleInputChange,
         handleSubmit,
         isLoading,
+        error,
         append: async (message: Parameters<typeof sendMessage>[0]) => {
             await sendMessage(message);
         },

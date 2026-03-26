@@ -191,11 +191,12 @@ class KaareClient:
         start: datetime.date | None = None,
         end: datetime.date | None = None,
     ) -> NewsSentimentResult:
-        """Fetch recent Finnhub news for *symbol*, score with FinBERT, and persist.
+        """Return FinBERT sentiment for *symbol* over [start, end].
 
-        Articles are saved to ``raw_news``, per-article scores to
-        ``article_sentiment``, and ``daily_ticker_sentiment`` is re-aggregated.
-        Re-running for the same ticker/date range is safe — conflicts are ignored.
+        If the date range ends more than one year ago, data is read directly from
+        the pre-seeded ``daily_ticker_sentiment`` table (fast, no API call).
+        For recent data (within the last year) the Finnhub API is called, articles
+        are scored with FinBERT, and results are persisted before returning.
 
         Args:
             symbol: Stock ticker (e.g. ``"AAPL"``).
@@ -210,6 +211,31 @@ class KaareClient:
         end = end or today
         start = start or (end - datetime.timedelta(days=7))
 
+        one_year_ago = today - datetime.timedelta(days=365)
+
+        if end <= one_year_ago:
+            # Historical — read from pre-seeded daily_ticker_sentiment table
+            rows = await repository.get_daily_ticker_sentiment(self._db, symbol, start, end)
+            if not rows:
+                logger.warning("No seeded sentiment for %s between %s and %s.", symbol, start, end)
+                return NewsSentimentResult(
+                    symbol=symbol, start=start, end=end, article_count=0, avg_score=0.0
+                )
+
+            daily_scores = {date: score for date, score, _ in rows}
+            total_articles = sum(count for _, _, count in rows)
+            avg_score = sum(score for _, score, _ in rows) / len(rows)
+
+            return NewsSentimentResult(
+                symbol=symbol,
+                start=start,
+                end=end,
+                article_count=total_articles,
+                avg_score=avg_score,
+                daily_scores=daily_scores,
+            )
+
+        # Recent — fetch from Finnhub, score only unscored articles, and persist
         articles = await self._finnhub.fetch_raw_news(symbol, start, end)
 
         if not articles:
@@ -218,28 +244,36 @@ class KaareClient:
                 symbol=symbol, start=start, end=end, article_count=0, avg_score=0.0
             )
 
-        # Score every article individually so we can store per-article results
-        texts = [a.text for a in articles]
-        article_scores = await self._analyzer.score_articles(texts)
-
-        # Persist: raw_news → article_sentiment → re-aggregate ticker sentiment
         ids = await repository.insert_raw_news_returning_ids(self._db, articles)
-        await repository.insert_article_sentiment_batch(self._db, list(zip(ids, article_scores)))
+
+        # Fetch already-scored articles to avoid re-running FinBERT
+        existing_scores = await repository.get_article_sentiment_by_ids(self._db, ids)
+
+        unscored_pairs = [
+            (i, a) for i, a in zip(ids, articles) if i not in existing_scores
+        ]
+
+        if unscored_pairs:
+            unscored_ids, unscored_articles = zip(*unscored_pairs)
+            new_scores = await self._analyzer.score_articles([a.text for a in unscored_articles])
+            await repository.insert_article_sentiment_batch(self._db, list(zip(unscored_ids, new_scores)))
+            for i, score in zip(unscored_ids, new_scores):
+                existing_scores[i] = score
+
         await repository.aggregate_daily_ticker_sentiment(self._db)
 
-        # Build per-date averages for the return value
-        by_date: dict[datetime.date, list[float]] = {}
-        for article, score in zip(articles, article_scores):
-            by_date.setdefault(article.trading_date, []).append(score["net_score"])
-
-        daily_scores = {d: sum(v) / len(v) for d, v in by_date.items()}
-        avg_score = sum(s["net_score"] for s in article_scores) / len(article_scores)
+        # Read back from daily_ticker_sentiment so the return value is always
+        # consistent with the DB (which aggregates ALL articles, not just this batch)
+        db_rows = await repository.get_daily_ticker_sentiment(self._db, symbol, start, end)
+        daily_scores = {date: score for date, score, _ in db_rows}
+        total_articles = sum(count for _, _, count in db_rows)
+        avg_score = sum(score for _, score, _ in db_rows) / len(db_rows) if db_rows else 0.0
 
         return NewsSentimentResult(
             symbol=symbol,
             start=start,
             end=end,
-            article_count=len(articles),
+            article_count=total_articles,
             avg_score=avg_score,
             daily_scores=daily_scores,
         )
