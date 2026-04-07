@@ -1,4 +1,31 @@
 /**
+ * Chart data point - supports both stock price and sentiment data
+ */
+export interface ChartDataPoint {
+  date: string;
+  price?: number;      // For stock price data
+  sentiment?: number;  // For sentiment data
+}
+
+/**
+ * Chart metadata - flexible to support both stock and sentiment data
+ */
+export interface ChartMetadata {
+  start_date: string;
+  end_date: string;
+  // Stock-specific fields
+  start_price?: number;
+  end_price?: number;
+  absolute_growth?: number;
+  percentage_growth?: number;
+  trading_days?: number;
+  // Sentiment-specific fields
+  article_count?: number;
+  avg_sentiment?: number;
+  sentiment_label?: string;
+}
+
+/**
  * Chart data structure received from the backend via data-chart parts
  */
 export interface ChartData {
@@ -6,19 +33,8 @@ export interface ChartData {
   chart_id: string;
   symbol: string;
   type: "line_chart" | "bar_chart" | "area_chart" | "pie_chart" | string;
-  data: Array<{
-    date: string;
-    price: number;
-  }>;
-  metadata: {
-    start_date: string;
-    end_date: string;
-    start_price: number;
-    end_price: number;
-    absolute_growth: number;
-    percentage_growth: number;
-    trading_days: number;
-  };
+  data: ChartDataPoint[];
+  metadata: ChartMetadata;
 }
 
 /**
@@ -38,30 +54,53 @@ export interface DataChartPart {
 }
 
 /**
- * Tool call start part - when agent initiates tool call
+ * Tool call data structure (wrapped inside data field per AI SDK schema)
  */
-export interface ToolCallPart {
-  type: "data-tool-call";
+export interface ToolCallData {
   toolCallId: string;
   toolName: string;
-  toolArgs: string[];
-  agentName?: string;
+  input: {
+    _agentName?: string;
+    [key: string]: unknown;
+  };
 }
 
 /**
- * Tool call result part - when tool execution completes
+ * Tool result data structure (wrapped inside data field per AI SDK schema)
  */
-export interface ToolCallResultPart {
-  type: "data-tool-result";
+export interface ToolResultData {
   toolCallId: string;
   toolName: string;
-  result: string | object;
+  output: string;
+}
+
+/**
+ * Tool call part - represents a tool invocation from an agent
+ * Backend sends these as custom data-tool-call data parts
+ * AI SDK schema: { type: "data-*", id?: string, data: unknown, transient?: boolean }
+ */
+export interface ToolCallPart {
+  type: "data-tool-call";
+  id?: string;
+  data: ToolCallData;
+}
+
+/**
+ * Tool result part - represents the result of a tool execution
+ * Backend sends these as custom data-tool-result data parts
+ * AI SDK schema: { type: "data-*", id?: string, data: unknown, transient?: boolean }
+ */
+export interface ToolResultPart {
+  type: "data-tool-result";
+  id?: string;
+  data: ToolResultData;
 }
 
 /**
  * AI SDK v5 Message Part Types
+ * Includes text, data-chart, and tool parts
  */
-export type MessagePart = TextPart | DataChartPart | ToolCallPart | ToolCallResultPart;
+export type MessagePart = TextPart | DataChartPart | ToolCallPart | ToolResultPart;
 
 /**
  * AI SDK v5 Message structure
@@ -96,16 +135,16 @@ export function isStockGrowthToolPart(part: MessagePart): part is DataChartPart 
 }
 
 /**
- * Type guard to check if a part is a tool-call part
+ * Type guard to check if a part is a tool call part
  */
 export function isToolCallPart(part: MessagePart): part is ToolCallPart {
   return part.type === "data-tool-call";
 }
 
 /**
- * Type guard to check if a part is a tool-result part
+ * Type guard to check if a part is a tool result part
  */
-export function isToolCallResultPart(part: MessagePart): part is ToolCallResultPart {
+export function isToolResultPart(part: MessagePart): part is ToolResultPart {
   return part.type === "data-tool-result";
 }
 

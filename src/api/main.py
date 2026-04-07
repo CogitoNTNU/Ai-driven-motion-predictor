@@ -1,30 +1,40 @@
 """FastAPI application with streaming agent responses using AI SDK v5 format."""
 
-import os
+# Standard library imports (must be first for ruff E402)
 import json
+import os
+import sys
 import uuid
-from typing import AsyncGenerator
-from datetime import datetime
 from contextlib import asynccontextmanager
+from datetime import datetime
+from pathlib import Path
+from typing import AsyncGenerator, Union
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import StreamingResponse
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
-from dotenv import load_dotenv
-from typing import Union
+# Add src directory to Python path for Kaare module
+# main.py is in src/api/, so go up one level to reach src/
+src_path = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(src_path))
 
-from agents.graph import get_graph, AgentState
-from langchain_core.messages import (
+# Third-party imports (after path manipulation - noqa required for E402)
+from fastapi import FastAPI, HTTPException  # noqa: E402
+from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
+from fastapi.responses import StreamingResponse  # noqa: E402
+from langchain_core.messages import (  # noqa: E402
     AIMessage,
-    ToolMessage,
+    AnyMessage,
     HumanMessage,
     SystemMessage,
-    AnyMessage,
+    ToolMessage,
 )
+from pydantic import BaseModel, Field  # noqa: E402
 
-# Load environment variables
+# Load environment variables before other imports that might need them
+from dotenv import load_dotenv  # noqa: E402
+
 load_dotenv()
+
+# Local imports (after path manipulation - noqa required for E402)
+from agents.graph import AgentState, get_graph  # noqa: E402
 
 
 class TextPart(BaseModel):
@@ -151,11 +161,46 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
 
     # Generate unique IDs for stream parts
     text_id = str(uuid.uuid4())
+    message_id = str(uuid.uuid4())
     has_text = False
 
-    # Stream with 'messages' mode to get LLM tokens and tool results
-    async for chunk in graph.astream(input_state, stream_mode="messages"):
-        message_chunk, metadata = chunk
+    # Send start event with message ID (AI SDK v5 format)
+    start_event = {"type": "start", "messageId": message_id}
+    yield f"data: {json.dumps(start_event, ensure_ascii=False)}\n\n"
+
+    # Stream with multiple modes to get both LLM tokens and node updates
+    # This is necessary for supervisor/sub-agent patterns to track when sub-agents are invoked
+    # stream_mode=["messages", "updates"] gives us:
+    # - "messages": LLM token chunks from both supervisor and sub-agents
+    # - "updates": Node state updates showing which agent/node is running
+    async for chunk in graph.astream(input_state, stream_mode=["messages", "updates"]):
+        message_chunk = None
+        metadata = {}
+
+        # Handle tuple format when using multiple stream modes: (mode, data)
+        if isinstance(chunk, tuple) and len(chunk) == 2:
+            mode, data = chunk
+            if mode == "messages":
+                message_chunk, metadata = data
+            elif mode == "updates":
+                # Node update - contains state changes from a specific node (agent)
+                # This helps us track which sub-agent is currently running
+                for node_name, node_state in data.items():
+                    if node_name and node_state and isinstance(node_state, dict):
+                        # Track current agent from node name
+                        if "messages" in node_state and node_state["messages"]:
+                            # Process messages from node update
+                            last_msg = node_state["messages"][-1]
+                            message_chunk = last_msg
+                            metadata = {"langgraph_node": node_name}
+                            break  # Process first valid message only
+        else:
+            # Single mode streaming (backward compatibility)
+            message_chunk, metadata = chunk
+
+        # Skip if no message chunk to process
+        if message_chunk is None:
+            continue
 
         # PRIORITY 1: Stream text from AI messages
         if isinstance(message_chunk, AIMessage):
@@ -169,7 +214,7 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                     if not has_text:
                         has_text = True
                         start_event = {"type": "text-start", "id": text_id}
-                        yield f"data: {json.dumps(start_event)}\n\n"
+                        yield f"data: {json.dumps(start_event, ensure_ascii=False)}\n\n"
 
                     # Send text content in delta format
                     delta_event = {
@@ -177,7 +222,7 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                         "id": text_id,
                         "delta": content,
                     }
-                    yield f"data: {json.dumps(delta_event)}\n\n"
+                    yield f"data: {json.dumps(delta_event, ensure_ascii=False)}\n\n"
 
             # PRIORITY 2: Stream tool calls as they are initiated
             if hasattr(message_chunk, "tool_calls") and message_chunk.tool_calls:
@@ -192,32 +237,42 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                         "arguments": tool_args,
                     }
 
-                    # Extract only parameter names (not full values) to reduce verbosity
-                    param_names = list(tool_args.keys()) if tool_args else []
+                    # Extract full tool arguments for better frontend visibility
+                    # Send the full args object so frontend can show what the tool is doing
+                    tool_args_data = tool_args if tool_args else {}
 
                     # Try to determine agent name from metadata
-                    # Look for 'lanes' or 'agent' in metadata
+                    # LangGraph metadata contains langgraph_node which is the agent name
                     agent_name = "assistant"
                     if isinstance(metadata, dict):
-                        if "lanes" in metadata and isinstance(metadata["lanes"], list):
+                        # Primary: use langgraph_node which contains the actual agent/node name
+                        if metadata.get("langgraph_node"):
+                            agent_name = str(metadata["langgraph_node"])
+                        # Fallback: check lanes array
+                        elif "lanes" in metadata and isinstance(
+                            metadata["lanes"], list
+                        ):
                             lanes = metadata["lanes"]
                             agent_name = lanes[-1] if lanes else "assistant"
+                        # Legacy fallback
                         elif "agent" in metadata:
                             agent_name = str(metadata["agent"])
-                        elif metadata.get("langgraph_node"):
-                            agent_name = str(metadata["langgraph_node"])
 
-                    # Stream tool-call event with data- prefix for Data Stream Protocol
+                    # Stream tool call as custom data part
+                    # AI SDK accepts custom data-* events that can contain arbitrary data
+                    # Frontend will handle these via message.parts with type "data-tool-call"
+                    # Schema: { type: "data-*", id?: string, data: unknown, transient?: boolean }
                     tool_call_event = {
-                        "type": "data-tool-call",
+                        "type": "data-tool-call",  # Custom data part type
+                        "id": tool_id,  # Optional ID for persistence in message parts
                         "data": {
                             "toolCallId": tool_id,
                             "toolName": tool_name,
-                            "toolArgs": param_names,  # Just parameter names
-                            "agentName": agent_name,
+                            "input": tool_args_data,
+                            "_agentName": agent_name,  # Include agent name for frontend display
                         },
                     }
-                    yield f"data: {json.dumps(tool_call_event)}\n\n"
+                    yield f"data: {json.dumps(tool_call_event, ensure_ascii=False)}\n\n"
 
         # PRIORITY 3: Stream tool outputs (charts and other results)
         if isinstance(message_chunk, ToolMessage):
@@ -231,16 +286,25 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                 tool_call_info = tool_calls.get(tool_id, {"name": "unknown"})
                 tool_name = tool_call_info.get("name", "unknown")
 
-                # Stream tool-result event with data- prefix for Data Stream Protocol
+                # Stream tool result as custom data part
+                # AI SDK accepts custom data-* events that can contain arbitrary data
+                # Frontend will handle these via message.parts with type "data-tool-result"
+                # Schema: { type: "data-*", id?: string, data: unknown, transient?: boolean }
+                output_data = (
+                    tool_content
+                    if isinstance(tool_content, str)
+                    else json.dumps(tool_content, ensure_ascii=False)
+                )
                 tool_result_event = {
-                    "type": "data-tool-result",
+                    "type": "data-tool-result",  # Custom data part type
+                    "id": tool_id,  # Optional ID for persistence in message parts
                     "data": {
                         "toolCallId": tool_id,
                         "toolName": tool_name,
-                        "result": tool_content,
+                        "output": output_data,
                     },
                 }
-                yield f"data: {json.dumps(tool_result_event)}\n\n"
+                yield f"data: {json.dumps(tool_result_event, ensure_ascii=False)}\n\n"
 
                 # Get artifact if available (from @tool(response_format="content_and_artifact"))
                 artifact = getattr(message_chunk, "artifact", None)
@@ -249,7 +313,7 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                     # End text block before sending chart
                     if has_text:
                         end_event = {"type": "text-end", "id": text_id}
-                        yield f"data: {json.dumps(end_event)}\n\n"
+                        yield f"data: {json.dumps(end_event, ensure_ascii=False)}\n\n"
                         has_text = False
 
                     # Send chart data as custom data part
@@ -257,19 +321,21 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
                         "type": "data-chart",
                         "data": artifact,
                     }
-                    yield f"data: {json.dumps(chart_event)}\n\n"
+                    yield f"data: {json.dumps(chart_event, ensure_ascii=False)}\n\n"
 
     # End text block if still open
     if has_text:
         end_event = {"type": "text-end", "id": text_id}
-        yield f"data: {json.dumps(end_event)}\n\n"
+        yield f"data: {json.dumps(end_event, ensure_ascii=False)}\n\n"
 
-    # Send finish signal
+    # Send finish signal (AI SDK v5 format)
+    # Schema: { type: "finish", finishReason?: string, messageMetadata?: unknown }
+    # Note: usage is NOT part of the standard schema - use messageMetadata if needed
     finish_event = {
         "type": "finish",
         "finishReason": "stop",
     }
-    yield f"data: {json.dumps(finish_event)}\n\n"
+    yield f"data: {json.dumps(finish_event, ensure_ascii=False)}\n\n"
 
     # Send stream termination marker
     yield "data: [DONE]\n\n"
