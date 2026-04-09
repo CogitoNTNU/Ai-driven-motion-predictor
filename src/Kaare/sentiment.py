@@ -6,19 +6,21 @@ from functools import partial
 
 logger = logging.getLogger(__name__)
 
-_MODEL_NAME = "ProsusAI/finbert"
+_MODEL_NAME = "mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis"
 _pipeline_instance = None
 
 
 def _get_pipeline():
     global _pipeline_instance
     if _pipeline_instance is None:
+        import time
         from transformers import pipeline
         from Kaare import config
         logger.info(
-            "Loading FinBERT model '%s' on device='%s' — this may take a moment on first run.",
+            "Loading sentiment model '%s' on device='%s' — this may take a moment on first run.",
             _MODEL_NAME, config.DEVICE,
         )
+        t0 = time.perf_counter()
         _pipeline_instance = pipeline(
             "text-classification",
             model=_MODEL_NAME,
@@ -27,6 +29,7 @@ def _get_pipeline():
             max_length=512,
             device=config.DEVICE,
         )
+        logger.info("Sentiment model loaded in %.2fs", time.perf_counter() - t0)
     return _pipeline_instance
 
 
@@ -116,8 +119,11 @@ class FinBERTAnalyzer:
         return await loop.run_in_executor(None, partial(self._score_articles_sync, texts))
 
     def _score_one_sync(self, text: str) -> dict:
+        import time
         pipe = self._load()
+        t0 = time.perf_counter()
         result = pipe([text])[0]
+        logger.debug("Inference for 1 article: %.3fs", time.perf_counter() - t0)
         label_scores = {item["label"]: item["score"] for item in result}
         pos = label_scores.get("positive", 0.0)
         neg = label_scores.get("negative", 0.0)

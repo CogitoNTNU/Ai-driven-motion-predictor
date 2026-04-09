@@ -11,6 +11,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import AsyncGenerator, Optional, Union
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Add src directory to Python path for Kaare module
@@ -588,6 +589,7 @@ async def stream_stock_sentiment(ticker: str, request: Request):
     symbol = ticker.upper()
 
     async def generate() -> AsyncGenerator[str, None]:
+        import time
         today = date.today()
         start = today - timedelta(days=30)
 
@@ -597,14 +599,27 @@ async def stream_stock_sentiment(ticker: str, request: Request):
             await client.initialize()
 
         try:
+            t_stream_start = time.perf_counter()
+
+            # --- Phase 1: Finnhub fetch ---
+            t0 = time.perf_counter()
             articles = await client._finnhub.fetch_raw_news(symbol, start, today)
+            t_finnhub = time.perf_counter() - t0
+            logger.info("[%s] Finnhub fetch: %.2fs — %d articles", symbol, t_finnhub, len(articles))
 
             if not articles:
                 yield f"data: {json.dumps({'type': 'done', 'avg_score': None, 'label': 'Unavailable', 'article_count': 0})}\n\n"
                 return
 
+            # --- Phase 2: DB insert + cache lookup ---
+            t0 = time.perf_counter()
             ids = await repo.insert_raw_news_returning_ids(client._db, articles)
             existing_scores = await repo.get_article_sentiment_by_ids(client._db, ids)
+            t_db = time.perf_counter() - t0
+            logger.info(
+                "[%s] DB insert+cache lookup: %.2fs — %d/%d cached",
+                symbol, t_db, len(existing_scores), len(articles),
+            )
 
             total = len(articles)
             all_net_scores: list[float] = []
@@ -627,6 +642,8 @@ async def stream_stock_sentiment(ticker: str, request: Request):
                 unscored_articles = [a for _, a in unscored_pairs]
                 new_scores: list[dict] = []
 
+                # --- Phase 3: FinBERT inference ---
+                t0 = time.perf_counter()
                 async for score in client._analyzer.score_articles_stream(
                     [a.text for a in unscored_articles]
                 ):
@@ -636,6 +653,13 @@ async def stream_stock_sentiment(ticker: str, request: Request):
                     current += 1
                     headline = unscored_articles[idx].text[:120].split(".")[0]
                     yield f"data: {json.dumps({'type': 'article', 'headline': headline, 'net_score': round(score['net_score'], 4), 'label': _net_to_label(score['net_score']), 'from_cache': False, 'current': current, 'total': total})}\n\n"
+
+                t_finbert = time.perf_counter() - t0
+                n = len(unscored_pairs)
+                logger.info(
+                    "[%s] FinBERT inference: %.2fs total — %d articles, %.3fs/article",
+                    symbol, t_finbert, n, t_finbert / n,
+                )
 
                 await repo.insert_article_sentiment_batch(
                     client._db, list(zip(unscored_ids, new_scores))
@@ -650,6 +674,7 @@ async def stream_stock_sentiment(ticker: str, request: Request):
                 "article_count": total,
             }
             _sentiment_cache[symbol] = (datetime.now(timezone.utc), response)
+            logger.info("[%s] Stream complete: %.2fs total", symbol, time.perf_counter() - t_stream_start)
             yield f"data: {json.dumps({'type': 'done', **response})}\n\n"
 
         except Exception as exc:

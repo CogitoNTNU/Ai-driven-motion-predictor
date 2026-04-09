@@ -242,25 +242,54 @@ async def insert_raw_news_returning_ids(
     """
     if not records:
         return []
+    # Single round-trip: bulk-upsert via UNNEST and return IDs in input order.
+    # tickers is TEXT[] in the DB; asyncpg can't encode list[list[str]] as text[][]
+    # reliably, so we pass the first ticker as a plain text and re-wrap in ARRAY[].
     query = """
-        INSERT INTO raw_news (date_utc, trading_date, text, text_hash, dataset_subset, source, tickers)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-        ON CONFLICT (text_hash, trading_date) DO UPDATE SET text = EXCLUDED.text
-        RETURNING id
+        WITH input AS (
+            SELECT
+                ordinality,
+                col1 AS date_utc,
+                col2 AS trading_date,
+                col3 AS text,
+                col4 AS text_hash,
+                col5 AS dataset_subset,
+                col6 AS source,
+                ARRAY[col7]::text[] AS tickers
+            FROM UNNEST(
+                $1::timestamptz[],
+                $2::date[],
+                $3::text[],
+                $4::text[],
+                $5::text[],
+                $6::text[],
+                $7::text[]
+            ) WITH ORDINALITY AS t(col1, col2, col3, col4, col5, col6, col7, ordinality)
+        ),
+        upserted AS (
+            INSERT INTO raw_news (date_utc, trading_date, text, text_hash, dataset_subset, source, tickers)
+            SELECT date_utc, trading_date, text, text_hash, dataset_subset, source, tickers
+            FROM input
+            ON CONFLICT (text_hash, trading_date) DO UPDATE SET text = EXCLUDED.text
+            RETURNING id, text_hash, trading_date
+        )
+        SELECT u.id
+        FROM input i
+        JOIN upserted u USING (text_hash, trading_date)
+        ORDER BY i.ordinality
     """
-    ids: list[int] = []
     async with pool.acquire() as conn:
-        # Prepare once, execute N times inside a single transaction.
-        # This avoids N separate auto-commit roundtrips and N query-parse cycles.
-        stmt = await conn.prepare(query)
-        async with conn.transaction():
-            for r in records:
-                row = await stmt.fetchrow(
-                    r.date_utc, r.trading_date, r.text, r.text_hash,
-                    r.dataset_subset, r.source, r.tickers,
-                )
-                ids.append(row["id"])
-    return ids
+        rows = await conn.fetch(
+            query,
+            [r.date_utc for r in records],
+            [r.trading_date for r in records],
+            [r.text for r in records],
+            [r.text_hash for r in records],
+            [r.dataset_subset for r in records],
+            [r.source for r in records],
+            [r.tickers[0] if r.tickers else "" for r in records],
+        )
+    return [row["id"] for row in rows]
 
 
 async def get_unscored_article_batch(pool: asyncpg.Pool, limit: int) -> list[tuple[int, str]]:
