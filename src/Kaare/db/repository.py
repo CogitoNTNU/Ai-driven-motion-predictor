@@ -250,13 +250,16 @@ async def insert_raw_news_returning_ids(
     """
     ids: list[int] = []
     async with pool.acquire() as conn:
-        for r in records:
-            row = await conn.fetchrow(
-                query,
-                r.date_utc, r.trading_date, r.text, r.text_hash,
-                r.dataset_subset, r.source, r.tickers,
-            )
-            ids.append(row["id"])
+        # Prepare once, execute N times inside a single transaction.
+        # This avoids N separate auto-commit roundtrips and N query-parse cycles.
+        stmt = await conn.prepare(query)
+        async with conn.transaction():
+            for r in records:
+                row = await stmt.fetchrow(
+                    r.date_utc, r.trading_date, r.text, r.text_hash,
+                    r.dataset_subset, r.source, r.tickers,
+                )
+                ids.append(row["id"])
     return ids
 
 
@@ -347,6 +350,29 @@ async def insert_article_sentiment_batch(
 # ---------------------------------------------------------------------------
 # daily_ticker_sentiment queries
 # ---------------------------------------------------------------------------
+
+
+async def get_ticker_sentiment_last_updated(
+    pool: asyncpg.Pool,
+    symbol: str,
+) -> datetime.datetime | None:
+    """Return the most recent ``updated_at`` timestamp for *symbol* in daily_ticker_sentiment.
+
+    Args:
+        pool: Active asyncpg pool.
+        symbol: Ticker symbol (case-insensitive).
+
+    Returns:
+        The latest ``updated_at`` value, or ``None`` if no rows exist for this ticker.
+    """
+    query = """
+        SELECT MAX(updated_at) AS last_updated
+        FROM daily_ticker_sentiment
+        WHERE ticker = $1
+    """
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(query, symbol.upper())
+    return row["last_updated"] if row else None
 
 
 async def get_daily_ticker_sentiment(
@@ -461,17 +487,25 @@ async def aggregate_daily_ticker_sentiment(pool: asyncpg.Pool) -> int:
             (trading_date, ticker, mean_score, article_count,
              std_score, pct_positive, pct_negative)
         SELECT
-            rn.trading_date,
-            UNNEST(rn.tickers) AS ticker,
-            AVG(s.net_score),
+            expanded.trading_date,
+            expanded.ticker,
+            AVG(expanded.net_score),
             COUNT(*),
-            STDDEV(s.net_score),
-            AVG(CASE WHEN s.positive > 0.5 THEN 1.0 ELSE 0.0 END),
-            AVG(CASE WHEN s.negative > 0.5 THEN 1.0 ELSE 0.0 END)
-        FROM raw_news rn
-        JOIN article_sentiment s ON s.raw_news_id = rn.id
-        WHERE rn.tickers IS NOT NULL AND array_length(rn.tickers, 1) > 0
-        GROUP BY rn.trading_date, UNNEST(rn.tickers)
+            STDDEV(expanded.net_score),
+            AVG(CASE WHEN expanded.positive > 0.5 THEN 1.0 ELSE 0.0 END),
+            AVG(CASE WHEN expanded.negative > 0.5 THEN 1.0 ELSE 0.0 END)
+        FROM (
+            SELECT
+                rn.trading_date,
+                UNNEST(rn.tickers) AS ticker,
+                s.net_score,
+                s.positive,
+                s.negative
+            FROM raw_news rn
+            JOIN article_sentiment s ON s.raw_news_id = rn.id
+            WHERE rn.tickers IS NOT NULL AND array_length(rn.tickers, 1) > 0
+        ) AS expanded
+        GROUP BY expanded.trading_date, expanded.ticker
         ON CONFLICT (trading_date, ticker) DO UPDATE SET
             mean_score    = EXCLUDED.mean_score,
             article_count = EXCLUDED.article_count,

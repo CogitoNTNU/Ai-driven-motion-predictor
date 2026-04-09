@@ -24,7 +24,22 @@ FINNHUB_API_KEY: str = _optional("FINNHUB_API_KEY")
 # HuggingFace
 HF_TOKEN: str = _optional("HF_TOKEN")
 BATCH_SIZE: int = int(_optional("BATCH_SIZE", "64"))
-DEVICE: str = _optional("DEVICE", "cpu")
+
+
+def _auto_device() -> str:
+    """Return the best available compute device."""
+    try:
+        import torch
+        if torch.cuda.is_available():
+            return "cuda"
+        if torch.backends.mps.is_available():
+            return "mps"
+    except ImportError:
+        pass
+    return "cpu"
+
+
+DEVICE: str = _optional("DEVICE", "") or _auto_device()
 
 FINANCE_SUBSETS: list[str] = [
     "fnspid_news",
