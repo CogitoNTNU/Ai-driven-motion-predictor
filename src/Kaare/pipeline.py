@@ -31,6 +31,22 @@ from Kaare.sentiment import FinBERTAnalyzer
 logger = logging.getLogger(__name__)
 
 
+def _safe_str(value) -> str:
+    """Convert value to ASCII-safe string for logging.
+
+    Args:
+        value: Any value to convert to string.
+
+    Returns:
+        ASCII-safe string.
+    """
+    if value is None:
+        return "None"
+    text = str(value)
+    # Encode to ASCII, ignoring non-ASCII characters
+    return text.encode("ascii", "ignore").decode("ascii")
+
+
 async def download_news(
     pool: asyncpg.Pool,
     subsets: list[str],
@@ -113,19 +129,31 @@ async def score_articles(
             try:
                 scores = await analyzer.score_articles(texts)
             except Exception as exc:
-                logger.warning("Batch scoring failed, falling back to per-article: %s", exc)
+                logger.warning(
+                    "Batch scoring failed, falling back to per-article: %s",
+                    _safe_str(exc),
+                )
                 scores = []
                 for text in texts:
                     try:
                         s = await analyzer.score_articles([text])
                         scores.extend(s)
                     except Exception as inner:
-                        logger.warning("Skipping article (scoring error): %s", inner)
+                        logger.warning(
+                            "Skipping article (scoring error): %s", _safe_str(inner)
+                        )
                         scores.append(
-                            {"positive": 0.0, "negative": 0.0, "neutral": 1.0, "net_score": 0.0}
+                            {
+                                "positive": 0.0,
+                                "negative": 0.0,
+                                "neutral": 1.0,
+                                "net_score": 0.0,
+                            }
                         )
 
-            await repository.insert_article_sentiment_batch(pool, list(zip(ids, scores)))
+            await repository.insert_article_sentiment_batch(
+                pool, list(zip(ids, scores))
+            )
             total += len(chunk)
 
         logger.info("  Scored %d articles so far ...", total)

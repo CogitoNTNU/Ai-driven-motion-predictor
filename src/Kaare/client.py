@@ -16,6 +16,22 @@ from Kaare.sentiment import FinBERTAnalyzer
 logger = logging.getLogger(__name__)
 
 
+def _safe_str(value) -> str:
+    """Convert value to ASCII-safe string for logging.
+
+    Args:
+        value: Any value to convert to string.
+
+    Returns:
+        ASCII-safe string.
+    """
+    if value is None:
+        return "None"
+    text = str(value)
+    # Encode to ASCII, ignoring non-ASCII characters
+    return text.encode("ascii", "ignore").decode("ascii")
+
+
 def _business_dates(start: datetime.date, end: datetime.date) -> set[datetime.date]:
     """Return the set of weekday dates in [start, end]."""
     dates: set[datetime.date] = set()
@@ -74,7 +90,9 @@ class KaareClient:
     @property
     def _db(self) -> asyncpg.Pool:
         if self._pool is None:
-            raise RuntimeError("KaareClient is not initialized. Call initialize() or use as async context manager.")
+            raise RuntimeError(
+                "KaareClient is not initialized. Call initialize() or use as async context manager."
+            )
         return self._pool
 
     # ------------------------------------------------------------------
@@ -110,7 +128,7 @@ class KaareClient:
             try:
                 fetched = await self._yf.get_stock_ohlcv(symbol, miss_start, miss_end)
             except Exception as exc:
-                logger.error("yfinance failed for %s: %s", symbol, exc)
+                logger.error("yfinance failed for %s: %s", symbol, _safe_str(exc))
 
             if fetched:
                 await repository.insert_stock_ohlcv(self._db, fetched)
@@ -152,19 +170,19 @@ class KaareClient:
             try:
                 gold = await self._yf.get_gold_prices(miss_start, miss_end)
             except Exception as exc:
-                logger.error("yfinance gold failed: %s", exc)
+                logger.error("yfinance gold failed: %s", _safe_str(exc))
 
             yields: dict[datetime.date, float] = {}
             try:
                 yields = await self._yf.get_treasury_yields(miss_start, miss_end)
             except Exception as exc:
-                logger.error("yfinance Treasury failed: %s", exc)
+                logger.error("yfinance Treasury failed: %s", _safe_str(exc))
 
             vix: dict[datetime.date, float] = {}
             try:
                 vix = await self._yf.get_vix(miss_start, miss_end)
             except Exception as exc:
-                logger.error("yfinance VIX failed: %s", exc)
+                logger.error("yfinance VIX failed: %s", _safe_str(exc))
 
             all_dates = set(gold) | set(yields) | set(vix) | missing
             new_records = [
@@ -215,9 +233,13 @@ class KaareClient:
 
         if end <= one_year_ago:
             # Historical — read from pre-seeded daily_ticker_sentiment table
-            rows = await repository.get_daily_ticker_sentiment(self._db, symbol, start, end)
+            rows = await repository.get_daily_ticker_sentiment(
+                self._db, symbol, start, end
+            )
             if not rows:
-                logger.warning("No seeded sentiment for %s between %s and %s.", symbol, start, end)
+                logger.warning(
+                    "No seeded sentiment for %s between %s and %s.", symbol, start, end
+                )
                 return NewsSentimentResult(
                     symbol=symbol, start=start, end=end, article_count=0, avg_score=0.0
                 )
@@ -239,7 +261,9 @@ class KaareClient:
         articles = await self._finnhub.fetch_raw_news(symbol, start, end)
 
         if not articles:
-            logger.warning("No news found for %s between %s and %s.", symbol, start, end)
+            logger.warning(
+                "No news found for %s between %s and %s.", symbol, start, end
+            )
             return NewsSentimentResult(
                 symbol=symbol, start=start, end=end, article_count=0, avg_score=0.0
             )
@@ -255,8 +279,12 @@ class KaareClient:
 
         if unscored_pairs:
             unscored_ids, unscored_articles = zip(*unscored_pairs)
-            new_scores = await self._analyzer.score_articles([a.text for a in unscored_articles])
-            await repository.insert_article_sentiment_batch(self._db, list(zip(unscored_ids, new_scores)))
+            new_scores = await self._analyzer.score_articles(
+                [a.text for a in unscored_articles]
+            )
+            await repository.insert_article_sentiment_batch(
+                self._db, list(zip(unscored_ids, new_scores))
+            )
             for i, score in zip(unscored_ids, new_scores):
                 existing_scores[i] = score
 
@@ -264,10 +292,14 @@ class KaareClient:
 
         # Read back from daily_ticker_sentiment so the return value is always
         # consistent with the DB (which aggregates ALL articles, not just this batch)
-        db_rows = await repository.get_daily_ticker_sentiment(self._db, symbol, start, end)
+        db_rows = await repository.get_daily_ticker_sentiment(
+            self._db, symbol, start, end
+        )
         daily_scores = {date: score for date, score, _ in db_rows}
         total_articles = sum(count for _, _, count in db_rows)
-        avg_score = sum(score for _, score, _ in db_rows) / len(db_rows) if db_rows else 0.0
+        avg_score = (
+            sum(score for _, score, _ in db_rows) / len(db_rows) if db_rows else 0.0
+        )
 
         return NewsSentimentResult(
             symbol=symbol,
