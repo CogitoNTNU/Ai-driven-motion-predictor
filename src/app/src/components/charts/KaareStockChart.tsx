@@ -48,7 +48,7 @@ export function KaareStockChart({ chart, showHeader = true }: KaareStockChartPro
   const yDomainMax = maxPrice + priceRange * 0.1;
 
   return (
-    <div className="w-full">
+    <div className="flex min-h-0 flex-1 flex-col w-full">
       {showHeader && (
         <div className="mb-4">
           <div className="flex items-baseline gap-3">
@@ -67,8 +67,8 @@ export function KaareStockChart({ chart, showHeader = true }: KaareStockChartPro
         </div>
       )}
 
-      <div className={`relative rounded-xl bg-gradient-to-b ${bgGradient} p-4`}>
-        <div className="h-[280px] w-full">
+      <div className={`relative min-h-0 flex-1 rounded-xl bg-gradient-to-b ${bgGradient} p-4`}>
+        <div className="h-full min-h-[120px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={data}
@@ -80,7 +80,7 @@ export function KaareStockChart({ chart, showHeader = true }: KaareStockChartPro
                   <stop offset="100%" stopColor={mainColor} stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              
+
               <XAxis
                 dataKey="date"
                 tickFormatter={formatDate}
@@ -91,7 +91,7 @@ export function KaareStockChart({ chart, showHeader = true }: KaareStockChartPro
                 tickMargin={8}
                 minTickGap={30}
               />
-              
+
               <YAxis
                 tickFormatter={formatPrice}
                 stroke="#4d4d4f"
@@ -103,13 +103,13 @@ export function KaareStockChart({ chart, showHeader = true }: KaareStockChartPro
                 width={50}
               />
 
-              <ReferenceLine 
-                y={startPrice} 
-                stroke="#4d4d4f" 
-                strokeDasharray="3 3" 
+              <ReferenceLine
+                y={startPrice}
+                stroke="#4d4d4f"
+                strokeDasharray="3 3"
                 strokeOpacity={0.5}
               />
-              
+
               <Tooltip
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
@@ -117,7 +117,7 @@ export function KaareStockChart({ chart, showHeader = true }: KaareStockChartPro
                     const price = data.price;
                     const priceChange = ((price - startPrice) / startPrice) * 100;
                     const isUp = priceChange >= 0;
-                    
+
                     return (
                       <div className="rounded-lg border border-[#4d4d4f] bg-[#2f2f2f] p-3 shadow-lg">
                         <p className="text-xs text-[#9ca3af] mb-1">
@@ -136,7 +136,7 @@ export function KaareStockChart({ chart, showHeader = true }: KaareStockChartPro
                 }}
                 cursor={{ stroke: mainColor, strokeWidth: 1, strokeDasharray: "4 4" }}
               />
-              
+
               <Area
                 type="monotone"
                 dataKey="price"
@@ -150,9 +150,12 @@ export function KaareStockChart({ chart, showHeader = true }: KaareStockChartPro
             </AreaChart>
           </ResponsiveContainer>
         </div>
+      </div>
 
-        {/* Stats row */}
-        <div className="mt-4 flex items-center justify-between border-t border-[#4d4d4f]/30 pt-3">
+      {/* Stats row — outside the flex-1 chart area so it never overflows */}
+      <div className="shrink-0 mt-3 flex items-center justify-between border-t border-[#4d4d4f]/30 pt-3">
+        <div>
+          <p className="mb-1.5 text-xs text-[#9ca3af]">Last registered values</p>
           <div className="flex gap-6">
             <div>
               <p className="text-xs text-[#9ca3af]">Open</p>
@@ -167,10 +170,8 @@ export function KaareStockChart({ chart, showHeader = true }: KaareStockChartPro
               <p className="text-sm font-medium text-[#ececf1]">{formatPrice(minPrice)}</p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-xs text-[#9ca3af]">{metadata?.trading_days ?? 0} days</p>
-          </div>
         </div>
+        <p className="text-xs text-[#9ca3af]">{metadata?.trading_days ?? 0} days</p>
       </div>
     </div>
   );

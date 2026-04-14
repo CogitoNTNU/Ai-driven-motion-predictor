@@ -51,26 +51,30 @@ def _clean_text(text: str) -> str:
     return text
 
 
-_MODEL_NAME = "ProsusAI/finbert"
+_MODEL_NAME = "mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis"
 _pipeline_instance = None
 
 
 def _get_pipeline():
     global _pipeline_instance
     if _pipeline_instance is None:
+        import time
         from transformers import pipeline
-
+        from Kaare import config
         logger.info(
-            "Loading FinBERT model '%s' — this may take a moment on first run.",
-            _MODEL_NAME,
+            "Loading sentiment model '%s' on device='%s' — this may take a moment on first run.",
+            _MODEL_NAME, config.DEVICE,
         )
+        t0 = time.perf_counter()
         _pipeline_instance = pipeline(
             "text-classification",
             model=_MODEL_NAME,
             top_k=None,
             truncation=True,
             max_length=512,
+            device=config.DEVICE,
         )
+        logger.info("Sentiment model loaded in %.2fs", time.perf_counter() - t0)
     return _pipeline_instance
 
 
@@ -175,6 +179,32 @@ class FinBERTAnalyzer:
             ``net_score`` per article.
         """
         loop = asyncio.get_running_loop()
-        return await loop.run_in_executor(
-            None, partial(self._score_articles_sync, texts)
-        )
+        return await loop.run_in_executor(None, partial(self._score_articles_sync, texts))
+
+    def _score_one_sync(self, text: str) -> dict:
+        import time
+        pipe = self._load()
+        t0 = time.perf_counter()
+        result = pipe([text])[0]
+        logger.debug("Inference for 1 article: %.3fs", time.perf_counter() - t0)
+        label_scores = {item["label"]: item["score"] for item in result}
+        pos = label_scores.get("positive", 0.0)
+        neg = label_scores.get("negative", 0.0)
+        neu = label_scores.get("neutral", 0.0)
+        return {"positive": pos, "negative": neg, "neutral": neu, "net_score": pos - neg}
+
+    async def score_articles_stream(self, texts: list[str]):
+        """Async generator that yields a score dict for each text as it completes.
+
+        Runs one article at a time in the thread-pool executor so the caller can
+        stream results back to the client without waiting for the full batch.
+
+        Args:
+            texts: Article texts to score.
+
+        Yields:
+            Dict with ``positive``, ``negative``, ``neutral``, ``net_score``.
+        """
+        loop = asyncio.get_running_loop()
+        for text in texts:
+            yield await loop.run_in_executor(None, partial(self._score_one_sync, text))

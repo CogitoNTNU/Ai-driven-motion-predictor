@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS article_sentiment (
     negative        REAL NOT NULL,
     neutral         REAL NOT NULL,
     net_score       REAL NOT NULL,
-    model_version   TEXT DEFAULT 'ProsusAI/finbert',
+    model_version   TEXT DEFAULT 'mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis',
     created_at      TIMESTAMPTZ DEFAULT NOW()
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_article_sentiment_news_id
@@ -103,6 +103,14 @@ CREATE INDEX IF NOT EXISTS idx_daily_ticker_sentiment_ticker
 """
 
 
+_MIGRATE_MODEL_VERSION = """
+ALTER TABLE article_sentiment
+    ALTER COLUMN model_version
+    SET DEFAULT 'mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis';
+DELETE FROM article_sentiment WHERE model_version = 'ProsusAI/finbert';
+"""
+
+
 async def run_migrations(pool: asyncpg.Pool) -> None:
     """Create all required tables if they do not already exist.
 
@@ -119,3 +127,4 @@ async def run_migrations(pool: asyncpg.Pool) -> None:
         await conn.execute(_CREATE_ARTICLE_SENTIMENT)
         await conn.execute(_CREATE_DAILY_MARKET_SENTIMENT)
         await conn.execute(_CREATE_DAILY_TICKER_SENTIMENT)
+        await conn.execute(_MIGRATE_MODEL_VERSION)

@@ -6,6 +6,7 @@ import type {Message, MessagePart, TextPart} from "@/types/chat";
 
 interface UseChatOptions {
     api: string;
+    context?: string;
 }
 
 function transformMessages(aiMessages: UIMessage[]): Message[] {
@@ -40,6 +41,7 @@ export function useChat(options: UseChatOptions) {
     } = useAIChat({
         transport: new DefaultChatTransport({
             api: options.api,
+            body: options.context ? { context: options.context } : undefined,
         }),
         onError: (err) => {
             console.error("Chat error:", err);

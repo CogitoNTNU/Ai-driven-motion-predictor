@@ -56,24 +56,29 @@ class KaareClient:
     from yfinance, then stored in the database before returning.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, pool: asyncpg.Pool | None = None) -> None:
         self._yf = YFinanceProvider()
         self._finnhub = FinnhubProvider()
         self._analyzer = FinBERTAnalyzer()
-        self._pool: asyncpg.Pool | None = None
+        self._pool: asyncpg.Pool | None = pool
+        self._owns_pool: bool = pool is None  # only close pools we created
 
     # ------------------------------------------------------------------
     # Lifecycle
     # ------------------------------------------------------------------
 
     async def initialize(self) -> None:
-        """Create the connection pool and run schema migrations."""
-        self._pool = await db_connection.create_pool()
-        await migrations.run_migrations(self._pool)
+        """Create the connection pool and run schema migrations.
+
+        No-op when an external pool was supplied to the constructor.
+        """
+        if self._pool is None:
+            self._pool = await db_connection.create_pool()
+            await migrations.run_migrations(self._pool)
 
     async def close(self) -> None:
-        """Close the connection pool."""
-        if self._pool:
+        """Close the connection pool (only if we own it)."""
+        if self._pool and self._owns_pool:
             await self._pool.close()
 
     async def __aenter__(self) -> Self:
@@ -257,7 +262,31 @@ class KaareClient:
                 daily_scores=daily_scores,
             )
 
-        # Recent — fetch from Finnhub, score only unscored articles, and persist
+        # Recent — check DB freshness before hitting Finnhub + FinBERT.
+        # If this ticker's sentiment was aggregated within the last 6 hours,
+        # return the cached DB rows directly without calling the external API.
+        _SIX_HOURS = datetime.timedelta(hours=6)
+        last_updated = await repository.get_ticker_sentiment_last_updated(self._db, symbol)
+        if last_updated is not None:
+            now_utc = datetime.datetime.now(datetime.timezone.utc)
+            if now_utc - last_updated < _SIX_HOURS:
+                logger.debug(
+                    "Sentiment for %s is fresh (updated %s). Skipping Finnhub+FinBERT.",
+                    symbol, last_updated,
+                )
+                db_rows = await repository.get_daily_ticker_sentiment(self._db, symbol, start, end)
+                daily_scores = {date: score for date, score, _ in db_rows}
+                total_articles = sum(count for _, _, count in db_rows)
+                avg_score = sum(score for _, score, _ in db_rows) / len(db_rows) if db_rows else 0.0
+                return NewsSentimentResult(
+                    symbol=symbol,
+                    start=start,
+                    end=end,
+                    article_count=total_articles,
+                    avg_score=avg_score,
+                    daily_scores=daily_scores,
+                )
+
         articles = await self._finnhub.fetch_raw_news(symbol, start, end)
 
         if not articles:

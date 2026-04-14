@@ -242,22 +242,54 @@ async def insert_raw_news_returning_ids(
     """
     if not records:
         return []
+    # Single round-trip: bulk-upsert via UNNEST and return IDs in input order.
+    # tickers is TEXT[] in the DB; asyncpg can't encode list[list[str]] as text[][]
+    # reliably, so we pass the first ticker as a plain text and re-wrap in ARRAY[].
     query = """
-        INSERT INTO raw_news (date_utc, trading_date, text, text_hash, dataset_subset, source, tickers)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-        ON CONFLICT (text_hash, trading_date) DO UPDATE SET text = EXCLUDED.text
-        RETURNING id
+        WITH input AS (
+            SELECT
+                ordinality,
+                col1 AS date_utc,
+                col2 AS trading_date,
+                col3 AS text,
+                col4 AS text_hash,
+                col5 AS dataset_subset,
+                col6 AS source,
+                ARRAY[col7]::text[] AS tickers
+            FROM UNNEST(
+                $1::timestamptz[],
+                $2::date[],
+                $3::text[],
+                $4::text[],
+                $5::text[],
+                $6::text[],
+                $7::text[]
+            ) WITH ORDINALITY AS t(col1, col2, col3, col4, col5, col6, col7, ordinality)
+        ),
+        upserted AS (
+            INSERT INTO raw_news (date_utc, trading_date, text, text_hash, dataset_subset, source, tickers)
+            SELECT date_utc, trading_date, text, text_hash, dataset_subset, source, tickers
+            FROM input
+            ON CONFLICT (text_hash, trading_date) DO UPDATE SET text = EXCLUDED.text
+            RETURNING id, text_hash, trading_date
+        )
+        SELECT u.id
+        FROM input i
+        JOIN upserted u USING (text_hash, trading_date)
+        ORDER BY i.ordinality
     """
-    ids: list[int] = []
     async with pool.acquire() as conn:
-        for r in records:
-            row = await conn.fetchrow(
-                query,
-                r.date_utc, r.trading_date, r.text, r.text_hash,
-                r.dataset_subset, r.source, r.tickers,
-            )
-            ids.append(row["id"])
-    return ids
+        rows = await conn.fetch(
+            query,
+            [r.date_utc for r in records],
+            [r.trading_date for r in records],
+            [r.text for r in records],
+            [r.text_hash for r in records],
+            [r.dataset_subset for r in records],
+            [r.source for r in records],
+            [r.tickers[0] if r.tickers else "" for r in records],
+        )
+    return [row["id"] for row in rows]
 
 
 async def get_unscored_article_batch(pool: asyncpg.Pool, limit: int) -> list[tuple[int, str]]:
@@ -347,6 +379,29 @@ async def insert_article_sentiment_batch(
 # ---------------------------------------------------------------------------
 # daily_ticker_sentiment queries
 # ---------------------------------------------------------------------------
+
+
+async def get_ticker_sentiment_last_updated(
+    pool: asyncpg.Pool,
+    symbol: str,
+) -> datetime.datetime | None:
+    """Return the most recent ``updated_at`` timestamp for *symbol* in daily_ticker_sentiment.
+
+    Args:
+        pool: Active asyncpg pool.
+        symbol: Ticker symbol (case-insensitive).
+
+    Returns:
+        The latest ``updated_at`` value, or ``None`` if no rows exist for this ticker.
+    """
+    query = """
+        SELECT MAX(updated_at) AS last_updated
+        FROM daily_ticker_sentiment
+        WHERE ticker = $1
+    """
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(query, symbol.upper())
+    return row["last_updated"] if row else None
 
 
 async def get_daily_ticker_sentiment(
@@ -461,17 +516,25 @@ async def aggregate_daily_ticker_sentiment(pool: asyncpg.Pool) -> int:
             (trading_date, ticker, mean_score, article_count,
              std_score, pct_positive, pct_negative)
         SELECT
-            rn.trading_date,
-            UNNEST(rn.tickers) AS ticker,
-            AVG(s.net_score),
+            expanded.trading_date,
+            expanded.ticker,
+            AVG(expanded.net_score),
             COUNT(*),
-            STDDEV(s.net_score),
-            AVG(CASE WHEN s.positive > 0.5 THEN 1.0 ELSE 0.0 END),
-            AVG(CASE WHEN s.negative > 0.5 THEN 1.0 ELSE 0.0 END)
-        FROM raw_news rn
-        JOIN article_sentiment s ON s.raw_news_id = rn.id
-        WHERE rn.tickers IS NOT NULL AND array_length(rn.tickers, 1) > 0
-        GROUP BY rn.trading_date, UNNEST(rn.tickers)
+            STDDEV(expanded.net_score),
+            AVG(CASE WHEN expanded.positive > 0.5 THEN 1.0 ELSE 0.0 END),
+            AVG(CASE WHEN expanded.negative > 0.5 THEN 1.0 ELSE 0.0 END)
+        FROM (
+            SELECT
+                rn.trading_date,
+                UNNEST(rn.tickers) AS ticker,
+                s.net_score,
+                s.positive,
+                s.negative
+            FROM raw_news rn
+            JOIN article_sentiment s ON s.raw_news_id = rn.id
+            WHERE rn.tickers IS NOT NULL AND array_length(rn.tickers, 1) > 0
+        ) AS expanded
+        GROUP BY expanded.trading_date, expanded.ticker
         ON CONFLICT (trading_date, ticker) DO UPDATE SET
             mean_score    = EXCLUDED.mean_score,
             article_count = EXCLUDED.article_count,

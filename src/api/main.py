@@ -2,13 +2,17 @@
 
 # Standard library imports (must be first for ruff E402)
 import json
+import logging
 import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import AsyncGenerator, Union
+from typing import AsyncGenerator, Optional, Union
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Add src directory to Python path for Kaare module
 # main.py is in src/api/, so go up one level to reach src/
@@ -16,7 +20,7 @@ src_path = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(src_path))
 
 # Third-party imports (after path manipulation - noqa required for E402)
-from fastapi import FastAPI, HTTPException  # noqa: E402
+from fastapi import FastAPI, HTTPException, Request  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 from fastapi.responses import StreamingResponse  # noqa: E402
 from langchain_core.messages import (  # noqa: E402
@@ -35,6 +39,14 @@ load_dotenv()
 
 # Local imports (after path manipulation - noqa required for E402)
 from agents.graph import AgentState, get_graph  # noqa: E402
+import yfinance as yf  # noqa: E402
+from Kaare import KaareClient  # noqa: E402
+from Kaare.db.connection import get_shared_pool, close_shared_pool  # noqa: E402
+from Kaare.db import migrations  # noqa: E402
+
+# In-memory sentiment cache: ticker -> (cached_at, result_dict)
+_sentiment_cache: dict[str, tuple[datetime, dict]] = {}
+_SENTIMENT_TTL = timedelta(hours=1)
 
 
 class TextPart(BaseModel):
@@ -83,18 +95,31 @@ class ChatRequest(BaseModel):
     messages: list[ChatMessage] = Field(
         description="List of messages in AI SDK v5 UIMessage format or legacy format"
     )
+    context: Optional[str] = Field(default=None, description="Optional stock context (ticker info) prepended as system message")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager for startup/shutdown events."""
-    # Startup
     print("🚀 Starting up...")
-    # Pre-initialize the graph
+
     get_graph()
     print("✅ Agent graph initialized")
+
+    # Shared DB pool — created once, reused by all REST endpoints
+    try:
+        pool = await get_shared_pool()
+        await migrations.run_migrations(pool)
+        app.state.db_pool = pool
+        print("✅ Database pool initialized")
+    except Exception as exc:
+        print(f"⚠️  Database pool init failed (sentiment endpoints will be degraded): {exc}")
+        app.state.db_pool = None
+
     yield
+
     # Shutdown
+    await close_shared_pool()
     print("👋 Shutting down...")
 
 
@@ -131,7 +156,7 @@ def convert_dict_to_message(msg_dict: dict) -> AnyMessage:
         return HumanMessage(content=content)
 
 
-async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, None]:
+async def stream_agent_response(messages: list[dict], context: Optional[str] = None) -> AsyncGenerator[str, None]:
     """Stream agent responses using Vercel AI SDK Data Stream Protocol.
 
     Uses the Server-Sent Events (SSE) format with proper Data Stream Protocol headers.
@@ -149,6 +174,10 @@ async def stream_agent_response(messages: list[dict]) -> AsyncGenerator[str, Non
     - finish: Message completion signal
     """
     graph = get_graph()
+
+    # Prepend context as system message if provided
+    if context:
+        messages = [{"role": "system", "content": context}] + messages
 
     # Prepare the input state - convert dict messages to LangChain message objects
     langchain_messages = [convert_dict_to_message(msg) for msg in messages]
@@ -382,7 +411,7 @@ async def chat(request: ChatRequest):
 
         # Return streaming response with Data Stream Protocol header
         return StreamingResponse(
-            stream_agent_response(messages),
+            stream_agent_response(messages, context=request.context),
             media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
@@ -433,6 +462,298 @@ async def chat_sync(request: ChatRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/search")
+async def search_tickers(q: str = ""):
+    """Search for ticker symbols with autocomplete."""
+    if not q or len(q.strip()) < 1:
+        return []
+    try:
+        search = yf.Search(q.strip(), news_count=0, max_results=8)
+        quotes = search.quotes or []
+        results = []
+        for quote in quotes:
+            symbol = quote.get("symbol", "")
+            name = quote.get("longname") or quote.get("shortname") or symbol
+            q_type = quote.get("quoteType", "")
+            if symbol and q_type in ("EQUITY", "ETF"):
+                results.append({"symbol": symbol, "name": name, "type": q_type})
+        return results[:8]
+    except Exception:
+        return []
+
+
+@app.get("/api/stock/{ticker}/summary")
+async def get_stock_summary(ticker: str):
+    """Get current price, company name, and daily change for a ticker."""
+    try:
+        t = yf.Ticker(ticker.upper())
+        info = t.fast_info
+        hist = t.history(period="2d")
+
+        current_price = float(getattr(info, "last_price", None) or 0)
+        prev_close = float(getattr(info, "previous_close", None) or 0)
+
+        if not current_price and not hist.empty:
+            current_price = float(hist["Close"].iloc[-1])
+        if not prev_close and len(hist) >= 2:
+            prev_close = float(hist["Close"].iloc[-2])
+
+        change = current_price - prev_close if prev_close else 0
+        change_pct = (change / prev_close * 100) if prev_close else 0
+
+        full_info = t.info
+        name = full_info.get("longName") or full_info.get("shortName") or ticker.upper()
+        currency = full_info.get("currency", "USD")
+
+        return {
+            "symbol": ticker.upper(),
+            "name": name,
+            "price": round(current_price, 2),
+            "change": round(change, 2),
+            "change_pct": round(change_pct, 2),
+            "currency": currency,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=f"Could not fetch data for {ticker}: {str(e)}")
+
+
+@app.get("/api/stock/{ticker}/history")
+async def get_stock_history(ticker: str, range: str = "1M"):
+    """Get historical price data for a ticker. range: 1W, 1M, 3M, 1Y"""
+    range_map = {"1W": "5d", "1M": "1mo", "3M": "3mo", "1Y": "1y"}
+    period = range_map.get(range.upper(), "1mo")
+    try:
+        t = yf.Ticker(ticker.upper())
+        hist = t.history(period=period)
+
+        if hist.empty:
+            raise HTTPException(status_code=404, detail=f"No data for {ticker}")
+
+        data = [
+            {"date": idx.strftime("%Y-%m-%d"), "price": round(float(row["Close"]), 2)}
+            for idx, row in hist.iterrows()
+        ]
+
+        start_price = float(hist["Close"].iloc[0])
+        end_price = float(hist["Close"].iloc[-1])
+        pct_growth = ((end_price - start_price) / start_price * 100) if start_price else 0
+
+        return {
+            "symbol": ticker.upper(),
+            "range": range.upper(),
+            "data": data,
+            "metadata": {
+                "start_date": hist.index[0].strftime("%Y-%m-%d"),
+                "end_date": hist.index[-1].strftime("%Y-%m-%d"),
+                "start_price": round(start_price, 2),
+                "end_price": round(end_price, 2),
+                "percentage_growth": round(pct_growth, 2),
+                "trading_days": len(hist),
+            },
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/stock/{ticker}/predictions")
+async def get_stock_predictions(ticker: str):
+    """Get model predictions for a ticker. Returns mock data until real models are integrated."""
+    return {
+        "symbol": ticker.upper(),
+        "current_price": None,
+        "models": [
+            {"name": "LSTM", "signal": "BUY", "target_price": None, "change_pct": 3.2, "confidence": 0.74},
+            {"name": "XGBoost", "signal": "BUY", "target_price": None, "change_pct": 2.1, "confidence": 0.61},
+            {"name": "Transformer", "signal": "HOLD", "target_price": None, "change_pct": 0.5, "confidence": 0.55},
+        ],
+        "ensemble": {"signal": "BUY", "votes": 2, "total": 3},
+    }
+
+
+@app.get("/api/stock/{ticker}/sentiment/stream")
+async def stream_stock_sentiment(ticker: str, request: Request):
+    """Stream FinBERT sentiment analysis article-by-article as an SSE feed.
+
+    Each scored article emits an ``article`` event. When all articles are done a
+    ``done`` event is emitted with the final aggregated score.  Already-scored
+    articles (DB cache) are emitted immediately; only genuinely new articles
+    trigger FinBERT and arrive with a slight delay.
+    """
+    from Kaare.db import repository as repo
+    from datetime import date
+
+    symbol = ticker.upper()
+
+    async def generate() -> AsyncGenerator[str, None]:
+        import time
+        today = date.today()
+        start = today - timedelta(days=30)
+
+        pool = getattr(request.app.state, "db_pool", None)
+        client = KaareClient(pool=pool)
+        if pool is None:
+            await client.initialize()
+
+        try:
+            t_stream_start = time.perf_counter()
+
+            # --- Phase 1: Finnhub fetch ---
+            t0 = time.perf_counter()
+            articles = await client._finnhub.fetch_raw_news(symbol, start, today)
+            t_finnhub = time.perf_counter() - t0
+            logger.info("[%s] Finnhub fetch: %.2fs — %d articles", symbol, t_finnhub, len(articles))
+
+            if not articles:
+                yield f"data: {json.dumps({'type': 'done', 'avg_score': None, 'label': 'Unavailable', 'article_count': 0})}\n\n"
+                return
+
+            # --- Phase 2: DB insert + cache lookup ---
+            t0 = time.perf_counter()
+            ids = await repo.insert_raw_news_returning_ids(client._db, articles)
+            existing_scores = await repo.get_article_sentiment_by_ids(client._db, ids)
+            t_db = time.perf_counter() - t0
+            logger.info(
+                "[%s] DB insert+cache lookup: %.2fs — %d/%d cached",
+                symbol, t_db, len(existing_scores), len(articles),
+            )
+
+            total = len(articles)
+            all_net_scores: list[float] = []
+            current = 0
+
+            # Emit cached articles immediately
+            for art_id, article in zip(ids, articles):
+                if art_id in existing_scores:
+                    score = existing_scores[art_id]
+                    all_net_scores.append(score["net_score"])
+                    current += 1
+                    headline = article.text[:120].split(".")[0]
+                    yield f"data: {json.dumps({'type': 'article', 'headline': headline, 'net_score': round(score['net_score'], 4), 'label': _net_to_label(score['net_score']), 'from_cache': True, 'current': current, 'total': total})}\n\n"
+
+            # Score unscored articles one-by-one and stream each result
+            unscored_pairs = [(i, a) for i, a in zip(ids, articles) if i not in existing_scores]
+
+            if unscored_pairs:
+                unscored_ids = [i for i, _ in unscored_pairs]
+                unscored_articles = [a for _, a in unscored_pairs]
+                new_scores: list[dict] = []
+
+                # --- Phase 3: FinBERT inference ---
+                t0 = time.perf_counter()
+                async for score in client._analyzer.score_articles_stream(
+                    [a.text for a in unscored_articles]
+                ):
+                    idx = len(new_scores)
+                    new_scores.append(score)
+                    all_net_scores.append(score["net_score"])
+                    current += 1
+                    headline = unscored_articles[idx].text[:120].split(".")[0]
+                    yield f"data: {json.dumps({'type': 'article', 'headline': headline, 'net_score': round(score['net_score'], 4), 'label': _net_to_label(score['net_score']), 'from_cache': False, 'current': current, 'total': total})}\n\n"
+
+                t_finbert = time.perf_counter() - t0
+                n = len(unscored_pairs)
+                logger.info(
+                    "[%s] FinBERT inference: %.2fs total — %d articles, %.3fs/article",
+                    symbol, t_finbert, n, t_finbert / n,
+                )
+
+                await repo.insert_article_sentiment_batch(
+                    client._db, list(zip(unscored_ids, new_scores))
+                )
+                await repo.aggregate_daily_ticker_sentiment(client._db)
+
+            avg = sum(all_net_scores) / len(all_net_scores) if all_net_scores else 0.0
+            response = {
+                "symbol": symbol,
+                "avg_score": round(avg, 4),
+                "label": _net_to_label(avg),
+                "article_count": total,
+            }
+            _sentiment_cache[symbol] = (datetime.now(timezone.utc), response)
+            logger.info("[%s] Stream complete: %.2fs total", symbol, time.perf_counter() - t_stream_start)
+            yield f"data: {json.dumps({'type': 'done', **response})}\n\n"
+
+        except Exception as exc:
+            logger.exception("Sentiment stream failed for %s: %s", symbol, exc)
+            yield f"data: {json.dumps({'type': 'done', 'avg_score': None, 'label': 'Unavailable', 'article_count': 0})}\n\n"
+        finally:
+            if pool is None:
+                await client.close()
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
+def _net_to_label(score: float) -> str:
+    if score >= 0.5:
+        return "Very Positive"
+    if score >= 0.1:
+        return "Positive"
+    if score > -0.1:
+        return "Neutral"
+    if score > -0.5:
+        return "Negative"
+    return "Very Negative"
+
+
+@app.get("/api/stock/{ticker}/sentiment")
+async def get_stock_sentiment_summary(ticker: str, request: Request):
+    """Get FinBERT news sentiment summary for a ticker.
+
+    Results are cached in-process for 1 hour per ticker to avoid
+    re-running the full Finnhub + FinBERT pipeline on every page load.
+    """
+    from datetime import date
+    symbol = ticker.upper()
+
+    # Return cached result if still fresh
+    now = datetime.now(timezone.utc)
+    cached = _sentiment_cache.get(symbol)
+    if cached is not None:
+        cached_at, cached_result = cached
+        if now - cached_at < _SENTIMENT_TTL:
+            return cached_result
+
+    today = date.today()
+    start = today - timedelta(days=30)
+
+    try:
+        # Use the shared pool if available (avoids per-request pool creation)
+        pool = getattr(request.app.state, "db_pool", None)
+        client = KaareClient(pool=pool)
+        if pool is None:
+            await client.initialize()
+        try:
+            result = await client.get_stock_news_sentiment(symbol, start, today)
+        finally:
+            if pool is None:
+                await client.close()
+
+        score = float(result.avg_score)
+        response = {
+            "symbol": symbol,
+            "avg_score": round(score, 4),
+            "label": _net_to_label(score),
+            "article_count": result.article_count,
+        }
+        _sentiment_cache[symbol] = (now, response)  # now is timezone-aware
+        return response
+
+    except Exception as exc:
+        logger.exception("Sentiment endpoint failed for %s: %s", symbol, exc)
+        return {
+            "symbol": symbol,
+            "avg_score": None,
+            "label": "Unavailable",
+            "article_count": 0,
+        }
 
 
 if __name__ == "__main__":
