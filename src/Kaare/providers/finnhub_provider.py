@@ -4,6 +4,7 @@ import asyncio
 import datetime
 import hashlib
 import logging
+import re
 from functools import partial
 
 import finnhub
@@ -12,6 +13,45 @@ from Kaare import config
 from Kaare.models import RawNews
 
 logger = logging.getLogger(__name__)
+
+
+def _clean_text(text: str) -> str:
+    """Clean text by removing/replacing problematic Unicode characters.
+
+    Args:
+        text: Raw text that may contain special characters.
+
+    Returns:
+        Cleaned text with ASCII-compatible characters.
+    """
+    if not text:
+        return ""
+
+    # Replace common Unicode characters with ASCII equivalents
+    replacements = {
+        "\u2018": "'",  # Left single quotation mark
+        "\u2019": "'",  # Right single quotation mark
+        "\u201c": '"',  # Left double quotation mark
+        "\u201d": '"',  # Right double quotation mark
+        "\u2013": "-",  # En dash
+        "\u2014": "-",  # Em dash
+        "\u2026": "...",  # Horizontal ellipsis
+        "\u00a0": " ",  # Non-breaking space
+        "\u00ad": "",  # Soft hyphen
+        "\u200b": "",  # Zero-width space
+        "\ufeff": "",  # Byte order mark
+    }
+
+    for unicode_char, ascii_char in replacements.items():
+        text = text.replace(unicode_char, ascii_char)
+
+    # Remove any remaining non-ASCII characters
+    text = text.encode("ascii", "ignore").decode("ascii")
+
+    # Clean up whitespace
+    text = re.sub(r"\s+", " ", text).strip()
+
+    return text
 
 
 class FinnhubProvider:
@@ -75,8 +115,8 @@ class FinnhubProvider:
                 date = datetime.date.fromtimestamp(ts)
                 if not (start <= date <= end):
                     continue
-                headline = article.get("headline", "")
-                summary = article.get("summary", "")
+                headline = _clean_text(article.get("headline", ""))
+                summary = _clean_text(article.get("summary", ""))
                 text = f"{headline}. {summary}".strip(". ")
                 if text:
                     by_date.setdefault(date, []).append(text)
@@ -97,8 +137,8 @@ class FinnhubProvider:
             trading_date = date_utc.date()
             if not (start <= trading_date <= end):
                 continue
-            headline = article.get("headline", "")
-            summary = article.get("summary", "")
+            headline = _clean_text(article.get("headline", ""))
+            summary = _clean_text(article.get("summary", ""))
             text = f"{headline}. {summary}".strip(". ")
             if not text:
                 continue

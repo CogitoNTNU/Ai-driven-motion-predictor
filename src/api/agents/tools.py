@@ -9,6 +9,18 @@ from langchain.tools import tool
 from Kaare import KaareClient
 
 
+def _clean_error(msg: str) -> str:
+    """Clean error message by removing non-ASCII characters.
+
+    Args:
+        msg: Error message that may contain Unicode characters.
+
+    Returns:
+        ASCII-safe error message.
+    """
+    return msg.encode("ascii", "ignore").decode("ascii")
+
+
 @tool(response_format="content_and_artifact")
 def get_stock_growth(
     symbol: str,
@@ -299,12 +311,14 @@ def get_stock_news_sentiment(
 
     except ValueError as e:
         return (
-            f"Error: Invalid date format. Please use YYYY-MM-DD format. Details: {str(e)}",
+            _clean_error(
+                f"Error: Invalid date format. Please use YYYY-MM-DD format. Details: {str(e)}"
+            ),
             None,
         )
     except Exception as e:
         return (
-            f"Error retrieving sentiment data for {symbol}: {str(e)}",
+            _clean_error(f"Error retrieving sentiment data for {symbol}: {str(e)}"),
             None,
         )
 
