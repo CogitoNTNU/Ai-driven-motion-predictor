@@ -50,7 +50,8 @@ def create_stock_agents():
         model=os.getenv("MODEL_NAME", "openai/gpt-oss-120b"),
         base_url=os.getenv("OPENAI_BASE_URL"),
         api_key=os.getenv("OPENAI_API_KEY"),
-        temperature=0.1,
+        temperature=0.0,
+        top_p=0.6,
         streaming=True,
     )
 

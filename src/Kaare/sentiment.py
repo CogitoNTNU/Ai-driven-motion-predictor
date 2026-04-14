@@ -2,9 +2,54 @@
 
 import asyncio
 import logging
+import re
 from functools import partial
 
 logger = logging.getLogger(__name__)
+
+
+def _clean_text(text: str) -> str:
+    """Clean text by removing/replacing problematic Unicode characters.
+
+    Args:
+        text: Raw text that may contain special characters.
+
+    Returns:
+        Cleaned text with ASCII-compatible characters.
+    """
+    if not text:
+        return ""
+
+    # Replace common Unicode characters with ASCII equivalents
+    replacements = {
+        "\u2018": "'",  # Left single quotation mark
+        "\u2019": "'",  # Right single quotation mark
+        "\u201c": '"',  # Left double quotation mark
+        "\u201d": '"',  # Right double quotation mark
+        "\u2013": "-",  # En dash
+        "\u2014": "-",  # Em dash
+        "\u2026": "...",  # Horizontal ellipsis
+        "\u00a0": " ",  # Non-breaking space
+        "\u00ad": "",  # Soft hyphen
+        "\u200b": "",  # Zero-width space
+        "\ufeff": "",  # Byte order mark
+        "\xa8": "",  # Diaeresis/umlaut
+        "\xa9": "(c)",  # Copyright symbol
+        "\xae": "(R)",  # Registered trademark
+        "\u2122": "(TM)",  # Trademark symbol
+    }
+
+    for unicode_char, ascii_char in replacements.items():
+        text = text.replace(unicode_char, ascii_char)
+
+    # Remove any remaining non-ASCII characters
+    text = text.encode("ascii", "ignore").decode("ascii")
+
+    # Clean up whitespace
+    text = re.sub(r"\s+", " ", text).strip()
+
+    return text
+
 
 _MODEL_NAME = "mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis"
 _pipeline_instance = None
@@ -46,7 +91,6 @@ class FinBERTAnalyzer:
         # score is a float in [-1.0, 1.0]
     """
 
-
     def _load(self):
         return _get_pipeline()
 
@@ -64,11 +108,18 @@ class FinBERTAnalyzer:
         """
         if not texts:
             return 0.0
+        # Clean texts to remove problematic Unicode characters
+        cleaned_texts = [_clean_text(t) for t in texts]
+        cleaned_texts = [t for t in cleaned_texts if t]  # Remove empty strings
+        if not cleaned_texts:
+            return 0.0
         pipe = self._load()
         scores: list[float] = []
-        for result in pipe(texts, batch_size=8):
+        for result in pipe(cleaned_texts, batch_size=8):
             label_scores = {item["label"]: item["score"] for item in result}
-            scores.append(label_scores.get("positive", 0.0) - label_scores.get("negative", 0.0))
+            scores.append(
+                label_scores.get("positive", 0.0) - label_scores.get("negative", 0.0)
+            )
         return sum(scores) / len(scores)
 
     async def score(self, texts: list[str]) -> float:
@@ -95,14 +146,26 @@ class FinBERTAnalyzer:
         """
         if not texts:
             return []
+        # Clean texts to remove problematic Unicode characters
+        cleaned_texts = [_clean_text(t) for t in texts]
+        cleaned_texts = [t for t in cleaned_texts if t]  # Remove empty strings
+        if not cleaned_texts:
+            return []
         pipe = self._load()
         results = []
-        for result in pipe(texts, batch_size=8):
+        for result in pipe(cleaned_texts, batch_size=8):
             label_scores = {item["label"]: item["score"] for item in result}
             pos = label_scores.get("positive", 0.0)
             neg = label_scores.get("negative", 0.0)
             neu = label_scores.get("neutral", 0.0)
-            results.append({"positive": pos, "negative": neg, "neutral": neu, "net_score": pos - neg})
+            results.append(
+                {
+                    "positive": pos,
+                    "negative": neg,
+                    "neutral": neu,
+                    "net_score": pos - neg,
+                }
+            )
         return results
 
     async def score_articles(self, texts: list[str]) -> list[dict]:
