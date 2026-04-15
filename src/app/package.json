@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "test": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview"
   },
@@ -49,5 +50,6 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.56.1",
     "vite": "^7.3.1"
-  }
+  },
+  "packageManager": "pnpm@10.33.0"
 }

@@ -95,7 +95,10 @@ class ChatRequest(BaseModel):
     messages: list[ChatMessage] = Field(
         description="List of messages in AI SDK v5 UIMessage format or legacy format"
     )
-    context: Optional[str] = Field(default=None, description="Optional stock context (ticker info) prepended as system message")
+    context: Optional[str] = Field(
+        default=None,
+        description="Optional stock context (ticker info) prepended as system message",
+    )
 
 
 @asynccontextmanager
@@ -113,7 +116,9 @@ async def lifespan(app: FastAPI):
         app.state.db_pool = pool
         print("✅ Database pool initialized")
     except Exception as exc:
-        print(f"⚠️  Database pool init failed (sentiment endpoints will be degraded): {exc}")
+        print(
+            f"⚠️  Database pool init failed (sentiment endpoints will be degraded): {exc}"
+        )
         app.state.db_pool = None
 
     yield
@@ -156,7 +161,9 @@ def convert_dict_to_message(msg_dict: dict) -> AnyMessage:
         return HumanMessage(content=content)
 
 
-async def stream_agent_response(messages: list[dict], context: Optional[str] = None) -> AsyncGenerator[str, None]:
+async def stream_agent_response(
+    messages: list[dict], context: Optional[str] = None
+) -> AsyncGenerator[str, None]:
     """Stream agent responses using Vercel AI SDK Data Stream Protocol.
 
     Uses the Server-Sent Events (SSE) format with proper Data Stream Protocol headers.
@@ -516,7 +523,9 @@ async def get_stock_summary(ticker: str):
             "currency": currency,
         }
     except Exception as e:
-        raise HTTPException(status_code=404, detail=f"Could not fetch data for {ticker}: {str(e)}")
+        raise HTTPException(
+            status_code=404, detail=f"Could not fetch data for {ticker}: {str(e)}"
+        )
 
 
 @app.get("/api/stock/{ticker}/history")
@@ -538,7 +547,9 @@ async def get_stock_history(ticker: str, range: str = "1M"):
 
         start_price = float(hist["Close"].iloc[0])
         end_price = float(hist["Close"].iloc[-1])
-        pct_growth = ((end_price - start_price) / start_price * 100) if start_price else 0
+        pct_growth = (
+            ((end_price - start_price) / start_price * 100) if start_price else 0
+        )
 
         return {
             "symbol": ticker.upper(),
@@ -561,17 +572,35 @@ async def get_stock_history(ticker: str, range: str = "1M"):
 
 @app.get("/api/stock/{ticker}/predictions")
 async def get_stock_predictions(ticker: str):
-    """Get model predictions for a ticker. Returns mock data until real models are integrated."""
-    return {
-        "symbol": ticker.upper(),
-        "current_price": None,
-        "models": [
-            {"name": "LSTM", "signal": "BUY", "target_price": None, "change_pct": 3.2, "confidence": 0.74},
-            {"name": "XGBoost", "signal": "BUY", "target_price": None, "change_pct": 2.1, "confidence": 0.61},
-            {"name": "Transformer", "signal": "HOLD", "target_price": None, "change_pct": 0.5, "confidence": 0.55},
-        ],
-        "ensemble": {"signal": "BUY", "votes": 2, "total": 3},
-    }
+    """Report the deployed prediction state for a ticker.
+
+    The app does not currently expose live model forecasts, so this endpoint
+    returns the latest market price together with an explicit unavailable state
+    instead of fabricated prediction data.
+    """
+    try:
+        symbol = ticker.upper()
+        stock = yf.Ticker(symbol)
+        info = stock.fast_info
+        hist = stock.history(period="2d")
+
+        current_price = float(getattr(info, "last_price", None) or 0)
+        if not current_price and not hist.empty:
+            current_price = float(hist["Close"].iloc[-1])
+
+        return {
+            "symbol": symbol,
+            "status": "unavailable",
+            "message": "No deployed prediction models are currently available for this ticker.",
+            "current_price": round(current_price, 2) if current_price else None,
+            "models": [],
+            "ensemble": None,
+        }
+    except Exception as exc:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Could not fetch prediction status for {ticker}: {str(exc)}",
+        )
 
 
 @app.get("/api/stock/{ticker}/sentiment/stream")
@@ -590,6 +619,7 @@ async def stream_stock_sentiment(ticker: str, request: Request):
 
     async def generate() -> AsyncGenerator[str, None]:
         import time
+
         today = date.today()
         start = today - timedelta(days=30)
 
@@ -605,7 +635,12 @@ async def stream_stock_sentiment(ticker: str, request: Request):
             t0 = time.perf_counter()
             articles = await client._finnhub.fetch_raw_news(symbol, start, today)
             t_finnhub = time.perf_counter() - t0
-            logger.info("[%s] Finnhub fetch: %.2fs — %d articles", symbol, t_finnhub, len(articles))
+            logger.info(
+                "[%s] Finnhub fetch: %.2fs — %d articles",
+                symbol,
+                t_finnhub,
+                len(articles),
+            )
 
             if not articles:
                 yield f"data: {json.dumps({'type': 'done', 'avg_score': None, 'label': 'Unavailable', 'article_count': 0})}\n\n"
@@ -618,7 +653,10 @@ async def stream_stock_sentiment(ticker: str, request: Request):
             t_db = time.perf_counter() - t0
             logger.info(
                 "[%s] DB insert+cache lookup: %.2fs — %d/%d cached",
-                symbol, t_db, len(existing_scores), len(articles),
+                symbol,
+                t_db,
+                len(existing_scores),
+                len(articles),
             )
 
             total = len(articles)
@@ -635,7 +673,9 @@ async def stream_stock_sentiment(ticker: str, request: Request):
                     yield f"data: {json.dumps({'type': 'article', 'headline': headline, 'net_score': round(score['net_score'], 4), 'label': _net_to_label(score['net_score']), 'from_cache': True, 'current': current, 'total': total})}\n\n"
 
             # Score unscored articles one-by-one and stream each result
-            unscored_pairs = [(i, a) for i, a in zip(ids, articles) if i not in existing_scores]
+            unscored_pairs = [
+                (i, a) for i, a in zip(ids, articles) if i not in existing_scores
+            ]
 
             if unscored_pairs:
                 unscored_ids = [i for i, _ in unscored_pairs]
@@ -658,7 +698,10 @@ async def stream_stock_sentiment(ticker: str, request: Request):
                 n = len(unscored_pairs)
                 logger.info(
                     "[%s] FinBERT inference: %.2fs total — %d articles, %.3fs/article",
-                    symbol, t_finbert, n, t_finbert / n,
+                    symbol,
+                    t_finbert,
+                    n,
+                    t_finbert / n,
                 )
 
                 await repo.insert_article_sentiment_batch(
@@ -674,7 +717,11 @@ async def stream_stock_sentiment(ticker: str, request: Request):
                 "article_count": total,
             }
             _sentiment_cache[symbol] = (datetime.now(timezone.utc), response)
-            logger.info("[%s] Stream complete: %.2fs total", symbol, time.perf_counter() - t_stream_start)
+            logger.info(
+                "[%s] Stream complete: %.2fs total",
+                symbol,
+                time.perf_counter() - t_stream_start,
+            )
             yield f"data: {json.dumps({'type': 'done', **response})}\n\n"
 
         except Exception as exc:
@@ -711,6 +758,7 @@ async def get_stock_sentiment_summary(ticker: str, request: Request):
     re-running the full Finnhub + FinBERT pipeline on every page load.
     """
     from datetime import date
+
     symbol = ticker.upper()
 
     # Return cached result if still fresh

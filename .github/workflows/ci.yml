@@ -12,6 +12,7 @@ permissions:
 
 env:
   PYTHON_VERSION: "3.12"
+  NODE_VERSION: "20"
 
 jobs:
   build-and-test:
@@ -26,29 +27,64 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+          run_install: false
+
       - name: Install uv
         uses: astral-sh/setup-uv@v6
         with:
             enable-cache: true
 
-      - name: Run pre-commit hooks (optional)
+      - name: Install root Python dependencies
         run: |
-          uv pip install --system pre-commit
-          pre-commit run --all-files || true
-        continue-on-error: true
+          uv sync --locked --group dev
 
-      - name: Install and sync dependencies
+      - name: Run pre-commit hooks
         run: |
-          uv sync --locked --all-extras
+          uv run pre-commit run --all-files
 
       - name: Run root tests
         run: |
-            uv run pytest tests --cov=src --cov-report=html
+          uv run pytest tests --cov=src --cov-report=term-missing
+
+      - name: Install API dependencies
+        working-directory: src/api
+        run: |
+          uv sync --locked
+
+      - name: Run API tests
+        working-directory: src/api
+        run: |
+          uv run python -m unittest discover -s tests
+
+      - name: Install frontend dependencies
+        working-directory: src/app
+        run: |
+          pnpm install --frozen-lockfile
+
+      - name: Run frontend checks
+        working-directory: src/app
+        run: |
+          pnpm test
+
+      - name: Build frontend
+        working-directory: src/app
+        run: |
+          pnpm build
 
 
   deploy:
     name: Deploy to GitHub Pages
     needs: [build-and-test]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

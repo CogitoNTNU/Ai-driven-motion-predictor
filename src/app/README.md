@@ -49,6 +49,7 @@ All scripts are defined in `package.json`:
 | ----------- | ---------------- | ---------------------------------------- |
 | `dev`       | `pnpm dev`       | Start development server with Vite       |
 | `build`     | `pnpm build`     | Type-check and build for production      |
+| `test`      | `pnpm test`      | Run the frontend validation command      |
 | `preview`   | `pnpm preview`   | Preview the production build locally     |
 | `lint`      | `pnpm lint`      | Run ESLint on the codebase               |
 | `format`    | `pnpm format`    | Format code with Prettier                |

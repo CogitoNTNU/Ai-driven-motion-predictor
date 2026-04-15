@@ -1,7 +1,7 @@
 [project]
 name = "AI-driven-motion-predictor"
 version = "0.0.1"
-description = "Add your description here"
+description = "Full-stack stock analysis workspace with FastAPI, React, and Kaare data tooling"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 license-files = ["LICENSE"]

@@ -10,6 +10,32 @@ interface ChartRendererProps {
   sentimentChart?: ChartData;
 }
 
+function mapSentimentData(chart: ChartData) {
+  return (
+    chart.data
+      ?.flatMap((point) => {
+        const sentiment =
+          typeof point.sentiment === "number"
+            ? point.sentiment
+            : typeof point.price === "number"
+              ? point.price
+              : null;
+
+        if (sentiment == null) {
+          return [];
+        }
+
+        return [
+          {
+            date: point.date,
+            sentiment,
+            volume: typeof point.volume === "number" ? point.volume : undefined,
+          },
+        ];
+      }) ?? []
+  );
+}
+
 export function ChartRenderer({ chart, sentimentChart }: ChartRendererProps) {
   const chartComponent = useMemo(() => {
     if (!chart || !chart.data || chart.data.length === 0) {
@@ -27,13 +53,8 @@ export function ChartRenderer({ chart, sentimentChart }: ChartRendererProps) {
 
     // If we have both stock and sentiment charts, show combined view
     if (sentimentChart && chart.tool_name === "get_stock_growth") {
-      // Map sentiment data safely - supports both 'sentiment' and 'price' fields
-      const mappedSentimentData = sentimentChart.data?.map(d => ({
-        date: d.date,
-        sentiment: typeof d.sentiment === 'number' ? d.sentiment : typeof d.price === 'number' ? d.price : 0,
-        volume: Math.floor(Math.random() * 50) + 10
-      })) || [];
-      
+      const mappedSentimentData = mapSentimentData(sentimentChart);
+
       return (
         <CombinedStockSentimentChart
           stockChart={chart}
@@ -56,15 +77,10 @@ export function ChartRenderer({ chart, sentimentChart }: ChartRendererProps) {
       case "get_stock_growth":
       case "get_current_price":
         return <KaareStockChart chart={chart} showHeader={true} />;
-      
-      case "get_stock_news_sentiment":
-        // Map backend data - supports both 'sentiment' and 'price' fields
-        const sentimentData = chart.data?.map(d => ({
-          date: d.date,
-          sentiment: typeof d.sentiment === 'number' ? d.sentiment : typeof d.price === 'number' ? d.price : 0,
-          volume: Math.floor(Math.random() * 50) + 10
-        })) || [];
-        
+
+      case "get_stock_news_sentiment": {
+        const sentimentData = mapSentimentData(chart);
+
         return (
           <SentimentChart
             symbol={chart.symbol}
@@ -77,6 +93,7 @@ export function ChartRenderer({ chart, sentimentChart }: ChartRendererProps) {
             }}
           />
         );
+      }
       
       default:
         // Fallback to Kååre style for line/area charts

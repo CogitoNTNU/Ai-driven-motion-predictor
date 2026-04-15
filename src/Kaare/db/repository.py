@@ -182,7 +182,16 @@ async def upsert_macro_data(
     async with pool.acquire() as conn:
         await conn.executemany(
             query,
-            [(r.date, r.gold_price, r.treasury_yield_10y, r.vix, r.news_sentiment_score) for r in records],
+            [
+                (
+                    r.date,
+                    r.gold_price,
+                    r.treasury_yield_10y,
+                    r.vix,
+                    r.news_sentiment_score,
+                )
+                for r in records
+            ],
         )
 
 
@@ -212,10 +221,18 @@ async def insert_raw_news_batch(pool: asyncpg.Pool, records: list[RawNews]) -> i
         RETURNING id
     """
     async with pool.acquire() as conn:
-        results = await conn.executemany(
+        await conn.executemany(
             query,
             [
-                (r.date_utc, r.trading_date, r.text, r.text_hash, r.dataset_subset, r.source, r.tickers)
+                (
+                    r.date_utc,
+                    r.trading_date,
+                    r.text,
+                    r.text_hash,
+                    r.dataset_subset,
+                    r.source,
+                    r.tickers,
+                )
                 for r in records
             ],
         )
@@ -292,7 +309,9 @@ async def insert_raw_news_returning_ids(
     return [row["id"] for row in rows]
 
 
-async def get_unscored_article_batch(pool: asyncpg.Pool, limit: int) -> list[tuple[int, str]]:
+async def get_unscored_article_batch(
+    pool: asyncpg.Pool, limit: int
+) -> list[tuple[int, str]]:
     """Fetch articles that have not yet been scored by FinBERT.
 
     Args:
@@ -370,7 +389,13 @@ async def insert_article_sentiment_batch(
         await conn.executemany(
             query,
             [
-                (raw_news_id, s["positive"], s["negative"], s["neutral"], s["net_score"])
+                (
+                    raw_news_id,
+                    s["positive"],
+                    s["negative"],
+                    s["neutral"],
+                    s["net_score"],
+                )
                 for raw_news_id, s in data
             ],
         )
@@ -429,7 +454,9 @@ async def get_daily_ticker_sentiment(
     """
     async with pool.acquire() as conn:
         rows = await conn.fetch(query, symbol.upper(), start, end)
-    return [(row["trading_date"], row["mean_score"], row["article_count"]) for row in rows]
+    return [
+        (row["trading_date"], row["mean_score"], row["article_count"]) for row in rows
+    ]
 
 
 # ---------------------------------------------------------------------------

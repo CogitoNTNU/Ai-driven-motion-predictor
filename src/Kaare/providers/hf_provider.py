@@ -49,9 +49,13 @@ def _parse_date_utc(row: dict, fallback: datetime.date) -> datetime.datetime:
     try:
         if "T" in date_str:
             return datetime.datetime.fromisoformat(date_str.replace("Z", "+00:00"))
-        return datetime.datetime.combine(fallback, datetime.time.min, tzinfo=datetime.timezone.utc)
+        return datetime.datetime.combine(
+            fallback, datetime.time.min, tzinfo=datetime.timezone.utc
+        )
     except ValueError:
-        return datetime.datetime.combine(fallback, datetime.time.min, tzinfo=datetime.timezone.utc)
+        return datetime.datetime.combine(
+            fallback, datetime.time.min, tzinfo=datetime.timezone.utc
+        )
 
 
 def _parse_tickers(extras: dict) -> list[str]:
@@ -146,4 +150,7 @@ class HFNewsProvider:
         if batch:
             yield batch
 
-        logger.info("Streaming complete. Skipped %d rows (too short or out of date range).", skipped)
+        logger.info(
+            "Streaming complete. Skipped %d rows (too short or out of date range).",
+            skipped,
+        )

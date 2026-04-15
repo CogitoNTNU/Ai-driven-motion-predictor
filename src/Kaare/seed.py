@@ -22,21 +22,25 @@ from Kaare.client import KaareClient
 from Kaare.db import connection as db_connection, migrations
 from Kaare.pipeline import run_pipeline
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s", stream=sys.stdout)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    stream=sys.stdout,
+)
 logger = logging.getLogger(__name__)
 
 # Top 10 stocks by market cap (as of early 2026)
 TOP_10_SYMBOLS = [
-    "AAPL",   # Apple
-    "NVDA",   # NVIDIA
-    "MSFT",   # Microsoft
-    "AMZN",   # Amazon
+    "AAPL",  # Apple
+    "NVDA",  # NVIDIA
+    "MSFT",  # Microsoft
+    "AMZN",  # Amazon
     "GOOGL",  # Alphabet
-    "META",   # Meta
-    "TSLA",   # Tesla
+    "META",  # Meta
+    "TSLA",  # Tesla
     "BRK-B",  # Berkshire Hathaway
-    "AVGO",   # Broadcom
-    "TSM",    # TSMC
+    "AVGO",  # Broadcom
+    "TSM",  # TSMC
 ]
 
 END = datetime.date.today()

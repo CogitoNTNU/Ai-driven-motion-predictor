@@ -9,7 +9,7 @@ interface CombinedStockSentimentChartProps {
     data?: Array<{
       date: string;
       sentiment: number;
-      volume: number;
+      volume?: number;
     }>;
     averageSentiment?: number;
     metadata?: {

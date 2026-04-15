@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 interface ModelPrediction {
   name: string;
   signal: "BUY" | "SELL" | "HOLD";
-  target_price: number;
+  target_price: number | null;
   change_pct: number;
   confidence: number;
 }
@@ -16,9 +16,11 @@ interface EnsemblePrediction {
 
 interface PredictionsResponse {
   symbol: string;
-  current_price: number;
+  status: "available" | "unavailable";
+  message?: string;
+  current_price: number | null;
   models: ModelPrediction[];
-  ensemble: EnsemblePrediction;
+  ensemble: EnsemblePrediction | null;
 }
 
 interface PredictionsPanelProps {
@@ -118,6 +120,8 @@ export function PredictionsPanel({ ticker }: PredictionsPanelProps) {
     };
   }, [ticker]);
 
+  const hasPredictions = data?.status === "available" && data.models.length > 0;
+
   return (
     <div className="rounded-xl border border-[#4d4d4f] bg-[#2f2f2f] p-4">
       <h2 className="mb-1 text-sm font-semibold text-white">Model Predictions</h2>
@@ -134,25 +138,40 @@ export function PredictionsPanel({ ticker }: PredictionsPanelProps) {
       ) : error ? (
         <p className="mt-3 text-sm text-[#9ca3af]">{error}</p>
       ) : data ? (
-        <>
-          <div className="divide-y divide-[#4d4d4f]/50">
-            {data.models.map((model) => (
-              <ModelRow key={model.name} model={model} />
-            ))}
-          </div>
-
-          <div className="mt-1 border-t border-[#4d4d4f] pt-3">
-            <div className="flex items-center justify-between rounded-lg bg-[#404040]/40 px-3 py-2.5">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-white text-sm">Ensemble</span>
-                <SignalBadge signal={data.ensemble.signal} />
-              </div>
-              <span className="text-xs text-[#9ca3af]">
-                {data.ensemble.votes}/{data.ensemble.total} votes
-              </span>
+        hasPredictions ? (
+          <>
+            <div className="divide-y divide-[#4d4d4f]/50">
+              {data.models.map((model) => (
+                <ModelRow key={model.name} model={model} />
+              ))}
             </div>
+
+            {data.ensemble && (
+              <div className="mt-1 border-t border-[#4d4d4f] pt-3">
+                <div className="flex items-center justify-between rounded-lg bg-[#404040]/40 px-3 py-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-white text-sm">Ensemble</span>
+                    <SignalBadge signal={data.ensemble.signal} />
+                  </div>
+                  <span className="text-xs text-[#9ca3af]">
+                    {data.ensemble.votes}/{data.ensemble.total} votes
+                  </span>
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="mt-3 rounded-lg border border-[#4d4d4f] bg-[#212121] px-3 py-3 text-sm text-[#9ca3af]">
+            {data.current_price != null && (
+              <p className="font-medium text-white">
+                Latest market price: ${data.current_price.toFixed(2)}
+              </p>
+            )}
+            <p className={data.current_price != null ? "mt-1" : undefined}>
+              {data.message ?? "Predictions are currently unavailable."}
+            </p>
           </div>
-        </>
+        )
       ) : null}
     </div>
   );

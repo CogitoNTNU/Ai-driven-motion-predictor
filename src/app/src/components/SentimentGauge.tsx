@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 
 interface ArticleEvent {
+  type: "article";
   headline: string;
   net_score: number;
   label: string;
@@ -109,22 +110,20 @@ export function SentimentGauge({ ticker }: SentimentGaugeProps) {
     const es = new EventSource(url);
 
     es.onmessage = (event) => {
-      const data = JSON.parse(event.data) as { type: string } & Partial<ArticleEvent & DoneEvent>;
+      const data = JSON.parse(event.data) as ArticleEvent | DoneEvent;
 
       if (data.type === "article") {
-        const art = data as ArticleEvent;
-        scoreAccRef.current.push(art.net_score);
+        scoreAccRef.current.push(data.net_score);
         const avg =
           scoreAccRef.current.reduce((a, b) => a + b, 0) / scoreAccRef.current.length;
         setLiveScore(avg);
-        setLiveLabel(art.label);
-        setProgress({ current: art.current, total: art.total });
-        setRecentArticles((prev) => [art, ...prev].slice(0, 4));
-      } else if (data.type === "done") {
-        const d = data as DoneEvent;
-        setLiveScore(d.avg_score);
-        setLiveLabel(d.label);
-        setArticleCount(d.article_count);
+        setLiveLabel(data.label);
+        setProgress({ current: data.current, total: data.total });
+        setRecentArticles((prev) => [data, ...prev].slice(0, 4));
+      } else {
+        setLiveScore(data.avg_score);
+        setLiveLabel(data.label);
+        setArticleCount(data.article_count);
         setDone(true);
         es.close();
       }

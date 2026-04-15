@@ -5,6 +5,7 @@ export interface ChartDataPoint {
   date: string;
   price?: number;      // For stock price data
   sentiment?: number;  // For sentiment data
+  volume?: number;     // Optional article/mention volume
 }
 
 /**

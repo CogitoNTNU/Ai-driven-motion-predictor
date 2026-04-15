@@ -10,7 +10,9 @@ load_dotenv()
 def _require(key: str) -> str:
     value = os.getenv(key)
     if not value:
-        raise RuntimeError(f"Required environment variable '{key}' is not set. Check your .env file.")
+        raise RuntimeError(
+            f"Required environment variable '{key}' is not set. Check your .env file."
+        )
     return value
 
 
@@ -30,6 +32,7 @@ def _auto_device() -> str:
     """Return the best available compute device."""
     try:
         import torch
+
         if torch.cuda.is_available():
             return "cuda"
         if torch.backends.mps.is_available():
@@ -58,6 +61,4 @@ DB_NAME: str = _optional("DB_NAME", "motion_predictor")
 DB_USER: str = _optional("DB_USER", "admin")
 DB_PASSWORD: str = _optional("DB_PASSWORD", "")
 
-DB_DSN: str = (
-    f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-)
+DB_DSN: str = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"

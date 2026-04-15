@@ -4,12 +4,9 @@ import asyncio
 import datetime
 import logging
 
-logging.basicConfig(level=logging.INFO)
-
-import sys
-sys.path.insert(0, ".")
-
 from Kaare.client import KaareClient
+
+logging.basicConfig(level=logging.INFO)
 
 
 async def main() -> None:
@@ -34,7 +31,7 @@ async def main() -> None:
         print(f"  symbol:        {sentiment.symbol}")
         print(f"  article_count: {sentiment.article_count}")
         print(f"  avg_score:     {sentiment.avg_score:.4f}")
-        print(f"  daily_scores:")
+        print("  daily_scores:")
         for date, score in sorted(sentiment.daily_scores.items()):
             print(f"    {date}: {score:.4f}")
 

@@ -13,7 +13,7 @@ import { useMemo } from "react";
 interface SentimentDataPoint {
   date: string;
   sentiment: number;
-  volume: number;
+  volume?: number;
 }
 
 interface SentimentChartProps {
@@ -33,6 +33,7 @@ export function SentimentChart({
   averageSentiment = 0,
   metadata 
 }: SentimentChartProps) {
+  const chartData = data;
   
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -80,32 +81,6 @@ export function SentimentChart({
   const sentimentLabel = getSentimentLabel(averageSentiment);
   const sentimentColor = getBarColor(averageSentiment);
 
-  // Generate mock data if no data provided (for demo purposes)
-  const chartData = useMemo(() => {
-    if (data.length > 0) return data;
-    
-    // Generate sample data if none provided
-    const sampleData: SentimentDataPoint[] = [];
-    const days = 14;
-    const endDate = new Date();
-    
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date(endDate);
-      date.setDate(date.getDate() - i);
-      
-      // Random sentiment between -0.5 and 0.5
-      const sentiment = (Math.random() - 0.5);
-      const volume = Math.floor(Math.random() * 50) + 10;
-      
-      sampleData.push({
-        date: date.toISOString().split('T')[0],
-        sentiment: Number(sentiment.toFixed(2)),
-        volume
-      });
-    }
-    return sampleData;
-  }, [data]);
-
   return (
     <div className="w-full">
       <div className="mb-4">
@@ -134,93 +109,99 @@ export function SentimentChart({
       </div>
 
       <div className="relative rounded-xl bg-[#2f2f2f]/50 p-4">
-        <div className="h-[240px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={chartData}
-              margin={{ top: 20, right: 0, left: 0, bottom: 0 }}
-            >
-              <XAxis
-                dataKey="date"
-                tickFormatter={formatDate}
-                stroke="#4d4d4f"
-                fontSize={11}
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                minTickGap={30}
-              />
-              
-              <YAxis
-                stroke="#4d4d4f"
-                fontSize={11}
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                domain={yDomain}
-                width={50}
-                tickFormatter={(val) => val.toFixed(2)}
-              />
-
-              <ReferenceLine 
-                y={0} 
-                stroke="#4d4d4f" 
-                strokeOpacity={0.5}
-              />
-
-              <ReferenceLine 
-                y={averageSentiment} 
-                stroke={sentimentColor} 
-                strokeDasharray="3 3"
-                strokeOpacity={0.8}
-              />
-              
-              <Tooltip
-                content={({ active, payload }) => {
-                  if (active && payload && payload.length) {
-                    const data = payload[0].payload as SentimentDataPoint;
-                    const sentimentColor = getBarColor(data.sentiment);
-                    
-                    return (
-                      <div className="rounded-lg border border-[#4d4d4f] bg-[#2f2f2f] p-3 shadow-lg">
-                        <p className="text-xs text-[#9ca3af] mb-1">
-                          {formatDate(data.date)}
-                        </p>
-                        <p className="text-lg font-semibold" style={{ color: sentimentColor }}>
-                          {data.sentiment > 0 ? "+" : ""}{data.sentiment.toFixed(3)}
-                        </p>
-                        <p className="text-xs text-[#9ca3af]">
-                          {getSentimentLabel(data.sentiment)}
-                        </p>
-                        {data.volume > 0 && (
-                          <p className="text-xs text-[#6b7280] mt-1">
-                            {data.volume} mentions
-                          </p>
-                        )}
-                      </div>
-                    );
-                  }
-                  return null;
-                }}
-                cursor={{ fill: "#404040", opacity: 0.3 }}
-              />
-              
-              <Bar
-                dataKey="sentiment"
-                radius={[3, 3, 3, 3]}
-                maxBarSize={35}
-                minPointSize={3}
+        {chartData.length === 0 ? (
+          <div className="rounded-lg border border-[#4d4d4f]/60 bg-[#212121] px-4 py-6 text-sm text-[#9ca3af]">
+            No sentiment timeline is available for this period.
+          </div>
+        ) : (
+          <div className="h-[240px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={chartData}
+                margin={{ top: 20, right: 0, left: 0, bottom: 0 }}
               >
-                {chartData.map((entry, index) => (
-                  <Cell 
-                    key={`cell-${index}`} 
-                    fill={getBarColor(entry.sentiment ?? 0)}
-                  />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={formatDate}
+                  stroke="#4d4d4f"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  minTickGap={30}
+                />
+                
+                <YAxis
+                  stroke="#4d4d4f"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  domain={yDomain}
+                  width={50}
+                  tickFormatter={(val) => val.toFixed(2)}
+                />
+
+                <ReferenceLine 
+                  y={0} 
+                  stroke="#4d4d4f" 
+                  strokeOpacity={0.5}
+                />
+
+                <ReferenceLine 
+                  y={averageSentiment} 
+                  stroke={sentimentColor} 
+                  strokeDasharray="3 3"
+                  strokeOpacity={0.8}
+                />
+                
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload as SentimentDataPoint;
+                      const sentimentColor = getBarColor(data.sentiment);
+                      
+                      return (
+                        <div className="rounded-lg border border-[#4d4d4f] bg-[#2f2f2f] p-3 shadow-lg">
+                          <p className="text-xs text-[#9ca3af] mb-1">
+                            {formatDate(data.date)}
+                          </p>
+                          <p className="text-lg font-semibold" style={{ color: sentimentColor }}>
+                            {data.sentiment > 0 ? "+" : ""}{data.sentiment.toFixed(3)}
+                          </p>
+                          <p className="text-xs text-[#9ca3af]">
+                            {getSentimentLabel(data.sentiment)}
+                          </p>
+                          {data.volume != null && data.volume > 0 && (
+                            <p className="text-xs text-[#6b7280] mt-1">
+                              {data.volume} mentions
+                            </p>
+                          )}
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                  cursor={{ fill: "#404040", opacity: 0.3 }}
+                />
+                
+                <Bar
+                  dataKey="sentiment"
+                  radius={[3, 3, 3, 3]}
+                  maxBarSize={35}
+                  minPointSize={3}
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={getBarColor(entry.sentiment ?? 0)}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
 
         {/* Legend */}
         <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 border-t border-[#4d4d4f]/30 pt-3">

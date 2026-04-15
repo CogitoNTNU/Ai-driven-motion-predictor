@@ -3,7 +3,7 @@
 import datetime
 from abc import ABC, abstractmethod
 
-from Kaare.models import MacroData, StockOHLCV
+from Kaare.models import StockOHLCV
 
 
 class DataProvider(ABC):

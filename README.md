@@ -53,21 +53,20 @@ AI-driven-motion-predictor/
 
 ## Description
 
-<!-- TODO: Provide a brief overview of what this project does and its key features. Please add pictures or videos of the application -->
-
 This project provides an AI-powered stock analysis platform with:
 
 - **Frontend**: React 19 + TypeScript + Vite chat interface using shadcn/ui components and Vercel AI SDK for streaming
   responses
 - **Backend**: FastAPI server with LangGraph multi-agent architecture (supervisor pattern) for stock market analysis
 - **Core ML**: PyTorch, Transformers, and financial data integrations (yfinance, Finnhub)
+- **Sentiment pipeline**: Kaare services that ingest market news, score it with FinBERT, and surface the results in the UI
 
 ## Prerequisites
 
 ### Required
 
 - **Git**: Version control [Download Git](https://git-scm.com/downloads)
-- **Python**: 3.12 or 3.13 [Download Python](https://www.python.org/downloads/)
+- **Python**: 3.12 [Download Python](https://www.python.org/downloads/)
 - **uv**: Modern Python package manager [Install UV](https://docs.astral.sh/uv/getting-started/installation/)
   ```sh
   curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -146,7 +145,13 @@ pnpm install
 cd ../..
 ```
 
-### 4. Start Development Servers
+### 4. Start Optional Database Services
+
+```sh
+docker compose up -d
+```
+
+### 5. Start Development Servers
 
 **Terminal 1 - Backend:**
 
@@ -196,6 +201,9 @@ pnpm dev
 # Build for production
 pnpm build
 
+# Run frontend validation
+pnpm test
+
 # Format code
 pnpm format
 
@@ -212,7 +220,7 @@ The backend is a FastAPI server providing stock analysis through LangGraph agent
 **Key technologies** (from `src/api/pyproject.toml`):
 
 - FastAPI 0.135.1 with Uvicorn 0.30.0
-- Python 3.12 or 3.13
+- Python 3.12
 - LangGraph 0.2.0+ for agent workflows
 - LangChain 0.3.0+ and LangChain-OpenAI 0.2.0+
 - LangGraph-Supervisor 0.0.15+ for multi-agent orchestration
@@ -284,10 +292,23 @@ The documentation will be available at [http://127.0.0.1:8000/](http://127.0.0.1
 Run the test suite from the project root:
 
 ```sh
-uv run pytest --doctest-modules --cov=src --cov-report=html
+uv run pytest tests
 ```
 
-View the coverage report at `htmlcov/index.html`.
+Run the API endpoint tests:
+
+```sh
+cd src/api
+uv run python -m unittest discover -s tests
+```
+
+Validate the frontend app:
+
+```sh
+cd src/app
+pnpm test
+pnpm build
+```
 
 ### Set up pre-commit hooks (development):
 
@@ -297,23 +318,8 @@ uv run pre-commit install
 
 ## Team
 
-This project would not have been possible without the hard work and dedication of all of the contributors. Thank you for
-the time and effort you have put into making this project a reality.
-
-<table align="center">
-    <tr>
-        <!--
-        <td align="center">
-            <a href="https://github.com/NAME_OF_MEMBER">
-              <img src="https://github.com/NAME_OF_MEMBER.png?size=100" width="100px;" alt="NAME OF MEMBER"/><br />
-              <sub><b>NAME OF MEMBER</b></sub>
-            </a>
-        </td>
-        -->
-    </tr>
-</table>
-
-![Group picture](docs/img/team.png)
+See the [GitHub contributors graph](https://github.com/CogitoNTNU/AI-driven-motion-predictor/graphs/contributors)
+for the current team roster and contribution history.
 
 ## License
 

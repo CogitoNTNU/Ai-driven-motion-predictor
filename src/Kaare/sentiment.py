@@ -61,9 +61,11 @@ def _get_pipeline():
         import time
         from transformers import pipeline
         from Kaare import config
+
         logger.info(
             "Loading sentiment model '%s' on device='%s' — this may take a moment on first run.",
-            _MODEL_NAME, config.DEVICE,
+            _MODEL_NAME,
+            config.DEVICE,
         )
         t0 = time.perf_counter()
         _pipeline_instance = pipeline(
@@ -179,10 +181,13 @@ class FinBERTAnalyzer:
             ``net_score`` per article.
         """
         loop = asyncio.get_running_loop()
-        return await loop.run_in_executor(None, partial(self._score_articles_sync, texts))
+        return await loop.run_in_executor(
+            None, partial(self._score_articles_sync, texts)
+        )
 
     def _score_one_sync(self, text: str) -> dict:
         import time
+
         pipe = self._load()
         t0 = time.perf_counter()
         result = pipe([text])[0]
@@ -191,7 +196,12 @@ class FinBERTAnalyzer:
         pos = label_scores.get("positive", 0.0)
         neg = label_scores.get("negative", 0.0)
         neu = label_scores.get("neutral", 0.0)
-        return {"positive": pos, "negative": neg, "neutral": neu, "net_score": pos - neg}
+        return {
+            "positive": pos,
+            "negative": neg,
+            "neutral": neu,
+            "net_score": pos - neg,
+        }
 
     async def score_articles_stream(self, texts: list[str]):
         """Async generator that yields a score dict for each text as it completes.

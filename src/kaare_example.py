@@ -33,7 +33,11 @@ async def main() -> None:
             print(f"  {row.date}  gold={gold}  10Y={yld}")
         print("  ...")
 
-        sentiment = await client.get
+        sentiment = await client.get_stock_news_sentiment("AAPL", start, end)
+        print(
+            f"\nSentiment — {sentiment.symbol} avg={sentiment.avg_score:+.4f} "
+            f"from {sentiment.article_count} articles"
+        )
 
 
 asyncio.run(main())

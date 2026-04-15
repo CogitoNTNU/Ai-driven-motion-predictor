@@ -17,9 +17,9 @@ import datetime
 import logging
 import sys
 
-logging.basicConfig(level=logging.WARNING, stream=sys.stdout)
-
 from Kaare.client import KaareClient
+
+logging.basicConfig(level=logging.WARNING, stream=sys.stdout)
 
 SYMBOL = "AAPL"
 TODAY = datetime.date.today()
@@ -43,11 +43,15 @@ async def test_historical_reads_from_db(client: KaareClient) -> bool:
     """
     end = TODAY
     start = TODAY - datetime.timedelta(days=7)
-    print(f"\nDB match path ({start} → {end}, result must match daily_ticker_sentiment):")
+    print(
+        f"\nDB match path ({start} → {end}, result must match daily_ticker_sentiment):"
+    )
 
     from Kaare.db import repository
 
-    db_rows = await repository.get_daily_ticker_sentiment(client._db, SYMBOL, start, end)
+    db_rows = await repository.get_daily_ticker_sentiment(
+        client._db, SYMBOL, start, end
+    )
 
     if not db_rows:
         result("no rows in daily_ticker_sentiment yet (run recent path first)", True)
@@ -59,7 +63,11 @@ async def test_historical_reads_from_db(client: KaareClient) -> bool:
     db_article_count = sum(count for _, _, count in db_rows)
 
     ok_count = sentiment.article_count >= db_article_count
-    result("article_count >= DB count", ok_count, f"{sentiment.article_count} >= {db_article_count}")
+    result(
+        "article_count >= DB count",
+        ok_count,
+        f"{sentiment.article_count} >= {db_article_count}",
+    )
 
     ok_dates = set(db_daily.keys()) == set(sentiment.daily_scores.keys())
     result("daily_scores dates match DB", ok_dates, f"DB={sorted(db_daily)}")
@@ -104,9 +112,14 @@ async def test_recent_reads_from_finnhub(client: KaareClient) -> bool:
 
     # Verify articles were actually persisted to daily_ticker_sentiment
     from Kaare.db import repository
-    db_rows = await repository.get_daily_ticker_sentiment(client._db, SYMBOL, start, end)
+
+    db_rows = await repository.get_daily_ticker_sentiment(
+        client._db, SYMBOL, start, end
+    )
     ok_persisted = len(db_rows) > 0
-    result("stored in daily_ticker_sentiment", ok_persisted, f"{len(db_rows)} rows in DB")
+    result(
+        "stored in daily_ticker_sentiment", ok_persisted, f"{len(db_rows)} rows in DB"
+    )
 
     return ok_symbol and ok_type and ok_range and ok_count and ok_daily and ok_persisted
 
@@ -146,7 +159,7 @@ async def test_empty_result(client: KaareClient) -> bool:
 
 
 async def main() -> None:
-    print(f"Smoke test: get_stock_news_sentiment routing")
+    print("Smoke test: get_stock_news_sentiment routing")
     print(f"TODAY={TODAY}  ONE_YEAR_AGO={ONE_YEAR_AGO}")
 
     async with KaareClient() as client:
@@ -159,7 +172,7 @@ async def main() -> None:
 
     passed = sum(results)
     total = len(results)
-    print(f"\n{'='*40}")
+    print(f"\n{'=' * 40}")
     print(f"Results: {passed}/{total} test groups passed")
     if passed < total:
         sys.exit(1)

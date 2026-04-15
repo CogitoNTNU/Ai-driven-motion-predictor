@@ -266,18 +266,27 @@ class KaareClient:
         # If this ticker's sentiment was aggregated within the last 6 hours,
         # return the cached DB rows directly without calling the external API.
         _SIX_HOURS = datetime.timedelta(hours=6)
-        last_updated = await repository.get_ticker_sentiment_last_updated(self._db, symbol)
+        last_updated = await repository.get_ticker_sentiment_last_updated(
+            self._db, symbol
+        )
         if last_updated is not None:
             now_utc = datetime.datetime.now(datetime.timezone.utc)
             if now_utc - last_updated < _SIX_HOURS:
                 logger.debug(
                     "Sentiment for %s is fresh (updated %s). Skipping Finnhub+FinBERT.",
-                    symbol, last_updated,
+                    symbol,
+                    last_updated,
                 )
-                db_rows = await repository.get_daily_ticker_sentiment(self._db, symbol, start, end)
+                db_rows = await repository.get_daily_ticker_sentiment(
+                    self._db, symbol, start, end
+                )
                 daily_scores = {date: score for date, score, _ in db_rows}
                 total_articles = sum(count for _, _, count in db_rows)
-                avg_score = sum(score for _, score, _ in db_rows) / len(db_rows) if db_rows else 0.0
+                avg_score = (
+                    sum(score for _, score, _ in db_rows) / len(db_rows)
+                    if db_rows
+                    else 0.0
+                )
                 return NewsSentimentResult(
                     symbol=symbol,
                     start=start,

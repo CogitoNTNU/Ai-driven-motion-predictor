@@ -5,7 +5,7 @@ FastAPI server providing stock analysis capabilities through LangGraph agents. S
 ## Tech Stack
 
 - **Framework**: FastAPI 0.135.1+ with Uvicorn 0.30.0+
-- **Python**: 3.12 or 3.13 (specified in `pyproject.toml`: `requires-python = ">=3.12,<3.14"`)
+- **Python**: 3.12 (specified in `pyproject.toml`: `requires-python = ">=3.12,<3.13"`)
 - **AI/ML**: LangGraph 0.2.0+, LangChain 0.3.0+, LangChain-OpenAI 0.2.0+
 - **Supervisor Pattern**: LangGraph-Supervisor 0.0.15+ for multi-agent orchestration
 - **Environment**: python-dotenv 1.0.0+
@@ -13,7 +13,7 @@ FastAPI server providing stock analysis capabilities through LangGraph agents. S
 
 ## Prerequisites
 
-- **Python**: Version 3.12 or 3.13
+- **Python**: Version 3.12
 - **uv**: Modern Python package manager (install via `curl -LsSf https://astral.sh/uv/install.sh | sh` or see [docs.astral.sh/uv](https://docs.astral.sh/uv/getting-started/installation/))
 
 ## Installation

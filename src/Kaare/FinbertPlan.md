@@ -5,11 +5,11 @@
 Build a Python pipeline that:
 
 1. Downloads financial news from HuggingFace (`Brianferrell787/financial-news-multisource`)
-2. Runs FinBERT sentiment analysis on each article
-3. Aggregates into a **daily market sentiment score** (both market-wide and per-ticker)
-4. Stores the results in a **PostgreSQL/ParadeDB** database for use as features in an LSTM stock prediction model
+1. Runs FinBERT sentiment analysis on each article
+1. Aggregates into a **daily market sentiment score** (both market-wide and per-ticker)
+1. Stores the results in a **PostgreSQL/ParadeDB** database for use as features in an LSTM stock prediction model
 
----
+______________________________________________________________________
 
 ## Project Structure
 
@@ -25,7 +25,7 @@ finbert-sentiment/
 └── README.md
 ```
 
----
+______________________________________________________________________
 
 ## Step 0: Environment Setup
 
@@ -77,7 +77,7 @@ huggingface-cli login
 # Paste your token when prompted
 ```
 
----
+______________________________________________________________________
 
 ## Step 1: Database Schema
 
@@ -157,7 +157,7 @@ Run it against your database:
 psql $DATABASE_URL -f schema.sql
 ```
 
----
+______________________________________________________________________
 
 ## Step 2: Config
 
@@ -177,13 +177,13 @@ DEVICE = os.getenv("DEVICE", "cpu")
 # Finance-focused subsets (these have the best signal-to-noise for market sentiment)
 # Ordered roughly by quality/relevance
 FINANCE_SUBSETS = [
-    "fnspid_news",                 # 1999-2023, ticker-tagged, large
-    "benzinga_6000stocks",         # 2000s-2010s, ticker-tagged
-    "bloomberg_reuters",           # 2006-2013, full articles, high quality
-    "cnbc_headlines",              # 2006-2020, market-focused
-    "sp500_daily_headlines",       # 2008-2024, market recaps
-    "finsen_us_2007_2023",         # 2007-2023, financial news with categories
-    "yahoo_finance_felixdrinkall", # 2017-2023, ticker-tagged
+    "fnspid_news",  # 1999-2023, ticker-tagged, large
+    "benzinga_6000stocks",  # 2000s-2010s, ticker-tagged
+    "bloomberg_reuters",  # 2006-2013, full articles, high quality
+    "cnbc_headlines",  # 2006-2020, market-focused
+    "sp500_daily_headlines",  # 2008-2024, market recaps
+    "finsen_us_2007_2023",  # 2007-2023, financial news with categories
+    "yahoo_finance_felixdrinkall",  # 2017-2023, ticker-tagged
 ]
 
 # Optional: broader subsets if you want general market sentiment too
@@ -198,7 +198,7 @@ FINBERT_MODEL = "ProsusAI/finbert"
 MAX_TOKEN_LENGTH = 512
 ```
 
----
+______________________________________________________________________
 
 ## Step 3: Download & Store Raw News
 
@@ -227,7 +227,7 @@ from config import DATABASE_URL, HF_TOKEN, FINANCE_SUBSETS
 def parse_trading_date(row: dict) -> str:
     """
     Extract the NYSE-aligned trading date.
-    Uses extra_fields.date_trading if available (already accounts for 
+    Uses extra_fields.date_trading if available (already accounts for
     weekends/holidays), otherwise falls back to the top-level date.
     """
     extras = json.loads(row["extra_fields"])
@@ -302,16 +302,18 @@ def download_and_store(subsets: list[str], batch_size: int = 1000):
         source = get_source(row)
         thash = text_hash(text)
 
-        batch.append((
-            row["date"],           # date_utc
-            trading_date,          # trading_date
-            text,                  # text
-            thash,                 # text_hash
-            subset,                # dataset_subset
-            source,                # source
-            tickers,               # tickers
-            row["extra_fields"],   # extra_fields (raw JSON string)
-        ))
+        batch.append(
+            (
+                row["date"],  # date_utc
+                trading_date,  # trading_date
+                text,  # text
+                thash,  # text_hash
+                subset,  # dataset_subset
+                source,  # source
+                tickers,  # tickers
+                row["extra_fields"],  # extra_fields (raw JSON string)
+            )
+        )
 
         if len(batch) >= batch_size:
             inserted = flush_batch(cur, batch)
@@ -321,7 +323,9 @@ def download_and_store(subsets: list[str], batch_size: int = 1000):
             conn.commit()
 
             if total_inserted % 50000 == 0:
-                print(f"  Inserted: {total_inserted:,} | Skipped (dedup): {total_skipped:,}")
+                print(
+                    f"  Inserted: {total_inserted:,} | Skipped (dedup): {total_skipped:,}"
+                )
 
     # Final batch
     if batch:
@@ -331,7 +335,9 @@ def download_and_store(subsets: list[str], batch_size: int = 1000):
 
     cur.close()
     conn.close()
-    print(f"\nDone. Total inserted: {total_inserted:,} | Total skipped: {total_skipped:,}")
+    print(
+        f"\nDone. Total inserted: {total_inserted:,} | Total skipped: {total_skipped:,}"
+    )
 
 
 def flush_batch(cur, batch: list) -> int:
@@ -367,7 +373,7 @@ python download_news.py
 download_and_store(["sp500_daily_headlines"])
 ```
 
----
+______________________________________________________________________
 
 ## Step 4: FinBERT Sentiment Scoring
 
@@ -405,7 +411,7 @@ def smart_truncate(text: str, max_chars: int = 1500) -> str:
     Truncate intelligently: keep headline + first paragraph.
     FinBERT's max is 512 tokens (~380 words). We pre-truncate by chars
     to avoid tokenizer overhead on very long articles.
-    
+
     The dataset uses 'title\\n\\nbody' format, so we split on double newline.
     """
     if len(text) <= max_chars:
@@ -441,12 +447,14 @@ def score_batch(texts: list[str], tokenizer, model) -> list[dict]:
 
     results = []
     for p in probs:
-        results.append({
-            "positive": float(p[0]),
-            "negative": float(p[1]),
-            "neutral": float(p[2]),
-            "net_score": float(p[0] - p[1]),
-        })
+        results.append(
+            {
+                "positive": float(p[0]),
+                "negative": float(p[1]),
+                "neutral": float(p[2]),
+                "net_score": float(p[0] - p[1]),
+            }
+        )
     return results
 
 
@@ -455,14 +463,17 @@ def get_unscored_articles(cur, batch_size: int) -> list[tuple]:
     Fetch articles that haven't been scored yet.
     Returns list of (id, text).
     """
-    cur.execute("""
+    cur.execute(
+        """
         SELECT rn.id, rn.text
         FROM raw_news rn
         LEFT JOIN article_sentiment s ON s.raw_news_id = rn.id
         WHERE s.id IS NULL
         ORDER BY rn.id
         LIMIT %s
-    """, (batch_size,))
+    """,
+        (batch_size,),
+    )
     return cur.fetchall()
 
 
@@ -567,6 +578,7 @@ DEVICE=cpu python run_sentiment.py
 ```
 
 **Performance estimates:**
+
 - GPU (T4/A10): ~100-200 articles/sec → 5M articles in ~7-14 hours
 - CPU: ~10-20 articles/sec → 5M articles in ~3-6 days
 
@@ -578,7 +590,7 @@ DEVICE=cuda python run_sentiment.py
 # Ctrl+B, D to detach — it keeps running
 ```
 
----
+______________________________________________________________________
 
 ## Step 5: Aggregate Daily Sentiment
 
@@ -688,7 +700,9 @@ def aggregate_per_ticker(cur):
 
 def print_summary(cur):
     """Print a quick summary of what we have."""
-    cur.execute("SELECT MIN(trading_date), MAX(trading_date), COUNT(*) FROM daily_market_sentiment")
+    cur.execute(
+        "SELECT MIN(trading_date), MAX(trading_date), COUNT(*) FROM daily_market_sentiment"
+    )
     row = cur.fetchone()
     print(f"\nMarket sentiment: {row[0]} to {row[1]} ({row[2]} trading days)")
 
@@ -707,8 +721,10 @@ def print_summary(cur):
         LIMIT 5
     """)
     for row in cur.fetchall():
-        print(f"  {row[0]} | score={row[1]:.4f} | n={row[2]} | "
-              f"+%={row[3]:.2f} | -%={row[4]:.2f} | 7d_avg={row[5]:.4f if row[5] else 'N/A'}")
+        print(
+            f"  {row[0]} | score={row[1]:.4f} | n={row[2]} | "
+            f"+%={row[3]:.2f} | -%={row[4]:.2f} | 7d_avg={row[5]:.4f if row[5] else 'N/A'}"
+        )
 
 
 def main():
@@ -735,7 +751,7 @@ if __name__ == "__main__":
 python aggregate_daily.py
 ```
 
----
+______________________________________________________________________
 
 ## Step 6: Query Sentiment for LSTM Features
 
@@ -743,6 +759,7 @@ Once everything is populated, you can pull features for your model like this:
 
 ```python
 """Example: pull daily features for AAPL to feed into LSTM."""
+
 import pandas as pd
 import psycopg2
 from config import DATABASE_URL
@@ -782,7 +799,7 @@ print(f"\nShape: {df.shape}")
 print(f"Date range: {df['trading_date'].min()} to {df['trading_date'].max()}")
 ```
 
----
+______________________________________________________________________
 
 ## Execution Order Summary
 
@@ -803,7 +820,7 @@ python aggregate_daily.py
 python your_lstm_model.py  # pull from daily_market_sentiment / daily_ticker_sentiment
 ```
 
----
+______________________________________________________________________
 
 ## Notes & Tips
 
