@@ -107,8 +107,8 @@ export function SentimentChart({
   }, [data]);
 
   return (
-    <div className="w-full">
-      <div className="mb-4">
+    <div className="flex flex-col w-full min-h-0">
+      <div className="mb-4 shrink-0">
         <div className="flex items-baseline gap-3">
           <span className="text-3xl font-semibold text-[#ececf1]">
             {sentimentLabel}
@@ -133,8 +133,8 @@ export function SentimentChart({
         </div>
       </div>
 
-      <div className="relative rounded-xl bg-[#2f2f2f]/50 p-4">
-        <div className="h-[240px] w-full">
+      <div className="relative flex-1 min-h-0 rounded-xl bg-[#2f2f2f]/50 p-4">
+        <div className="h-full min-h-[200px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={chartData}
@@ -248,7 +248,7 @@ export function SentimentChart({
 
         {/* Data Table */}
         {chartData.length > 0 && (
-          <div className="mt-4 border-t border-[#4d4d4f]/30 pt-4">
+          <div className="mt-4 border-t border-[#4d4d4f]/30 pt-4 max-h-[200px] overflow-y-auto">
             <h4 className="mb-3 text-sm font-medium text-[#ececf1]">Daily Sentiment Trend</h4>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
