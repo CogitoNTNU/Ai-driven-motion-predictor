@@ -25,13 +25,15 @@ export function CombinedStockSentimentChart({
   sentimentChart 
 }: CombinedStockSentimentChartProps) {
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6 min-h-0">
       {/* Stock Chart - Full Width */}
-      <KaareStockChart chart={stockChart} showHeader={true} />
+      <div className="min-h-0">
+        <KaareStockChart chart={stockChart} showHeader={true} />
+      </div>
       
       {/* Sentiment Chart - Below Stock */}
       {sentimentChart && (
-        <div className="border-t border-[#4d4d4f]/30 pt-6">
+        <div className="border-t border-[#4d4d4f]/30 pt-6 min-h-0">
           <SentimentChart
             symbol={sentimentChart.symbol}
             data={sentimentChart.data}

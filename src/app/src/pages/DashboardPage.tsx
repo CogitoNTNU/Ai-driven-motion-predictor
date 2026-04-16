@@ -20,6 +20,7 @@ export function DashboardPage() {
   const symbol = ticker?.toUpperCase() ?? "";
 
   const [summary, setSummary] = useState<StockSummary | null>(null);
+  const [isChatExpanded, setIsChatExpanded] = useState(false);
 
   useEffect(() => {
     if (!symbol) return;
@@ -52,9 +53,23 @@ export function DashboardPage() {
         }}
       >
         {/* Left column */}
-        <div className="grid min-h-0 gap-4" style={{ gridTemplateRows: "1fr 1fr" }}>
+        <div
+          className="relative grid min-h-0 gap-4 transition-all duration-300 ease-in-out"
+          style={{
+            gridTemplateRows: "1fr 1fr",
+          }}
+        >
           <StockChartPanel ticker={symbol} />
-          <ChatPanel ticker={symbol} stockContext={stockContext} />
+          <div
+            className={isChatExpanded ? "absolute inset-0 z-20" : "min-h-0"}
+          >
+            <ChatPanel
+              ticker={symbol}
+              stockContext={stockContext}
+              isExpanded={isChatExpanded}
+              onToggleExpand={() => setIsChatExpanded(!isChatExpanded)}
+            />
+          </div>
         </div>
 
         {/* Right column */}
