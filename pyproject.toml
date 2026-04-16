@@ -13,14 +13,14 @@ dependencies = [
     "yfinance>=1.2.0",
     "finnhub-python>=1.4.19",
     "datasets>=2.19",
-    "pytest>=9.0.2",
+    "pytest>=9.0.3",
 ]
 
 
 [dependency-groups]
 dev = [
     "pre-commit>=4.2.0",
-    "pytest>=8.4.1",
+    "pytest>=9.0.3",
     "pytest-cov>=6.2.1",
 ]
 
