@@ -2,7 +2,12 @@ import { useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ArrowUp, Square, Maximize2, Minimize2 } from "lucide-react";
 import { useChat } from "@/hooks/use-chat";
 import { Streamdown } from "streamdown";
@@ -14,33 +19,6 @@ import {
   type ToolCallPart,
   type ToolResultPart,
 } from "@/types/chat";
-
-function extractChartPairs(
-  message: Message
-): Array<{ stock?: ChartData; sentiment?: ChartData }> {
-  if (!message.parts || message.parts.length === 0) return [];
-  const charts = message.parts.filter(isChartPart).map((p) => p.data);
-  if (charts.length === 0) return [];
-
-  const bySymbol: Record<string, { stock?: ChartData; sentiment?: ChartData }> = {};
-  for (const chart of charts) {
-    if (
-      chart.tool_name === "get_stock_growth" ||
-      chart.tool_name === "get_current_price"
-    ) {
-      continue;
-    }
-
-    const symbol = chart.symbol;
-    if (!bySymbol[symbol]) bySymbol[symbol] = {};
-    if (chart.tool_name === "get_stock_news_sentiment") {
-      bySymbol[symbol].sentiment = chart;
-    } else {
-      bySymbol[symbol].stock = chart;
-    }
-  }
-  return Object.values(bySymbol);
-}
 
 function extractToolCalls(
   message: Message
@@ -71,7 +49,10 @@ function getToolCallSummary(toolCall: ToolCallPart | ToolResultPart): string {
     try {
       const data = JSON.parse(toolCall.data.output);
       const toolName = toolCall.data.toolName;
-      if (toolName === "get_stock_growth" && data.percentage_growth !== undefined) {
+      if (
+        toolName === "get_stock_growth" &&
+        data.percentage_growth !== undefined
+      ) {
         const sign = data.percentage_growth >= 0 ? "+" : "";
         return `${data.symbol || "Stock"}: ${sign}${data.percentage_growth.toFixed(1)}%`;
       }
@@ -129,14 +110,28 @@ function CitationBadge({ index, toolCall }: CitationBadgeProps) {
 interface ChatPanelProps {
   ticker: string;
   stockContext: string;
+  isExpanded?: boolean;
+  onToggleExpand?: () => void;
 }
 
-export function ChatPanel({ ticker, stockContext }: ChatPanelProps) {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, stop, error } =
-    useChat({
-      api: `${import.meta.env.VITE_API_URL ?? ""}/api/chat`,
-      context: stockContext,
-    });
+export function ChatPanel({
+  ticker,
+  stockContext,
+  isExpanded = false,
+  onToggleExpand,
+}: ChatPanelProps) {
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    isLoading,
+    stop,
+    error,
+  } = useChat({
+    api: `${import.meta.env.VITE_API_URL ?? ""}/api/chat`,
+    context: stockContext,
+  });
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -150,14 +145,14 @@ export function ChatPanel({ ticker, stockContext }: ChatPanelProps) {
     <TooltipProvider delayDuration={100}>
       <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-[#4d4d4f] bg-[#2f2f2f]">
         {/* Card header */}
-        <div className="shrink-0 border-b border-[#4d4d4f] px-4 py-3 flex items-center justify-between">
+        <div className="flex shrink-0 items-center justify-between border-b border-[#4d4d4f] px-4 py-3">
           <h2 className="text-sm font-semibold text-white">Ask about {ticker}</h2>
           {onToggleExpand && (
             <Button
               variant="ghost"
               size="icon"
               onClick={onToggleExpand}
-              className="h-7 w-7 rounded-lg text-[#9ca3af] hover:bg-[#404040] hover:text-white transition-colors"
+              className="h-7 w-7 rounded-lg text-[#9ca3af] transition-colors hover:bg-[#404040] hover:text-white"
               title={isExpanded ? "Collapse chat" : "Expand chat"}
             >
               {isExpanded ? (
@@ -170,11 +165,11 @@ export function ChatPanel({ ticker, stockContext }: ChatPanelProps) {
         </div>
 
         {/* Scrollable message area */}
-        <div className="flex-1 min-h-0 overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-y-auto">
           {messages.length === 0 ? (
             <div className="flex h-full items-center justify-center p-6 text-center">
               <p className="text-sm text-[#9ca3af]">
-                Ask anything about {ticker} — predictions, news, price history...
+                Ask anything about {ticker} - predictions, news, price history...
               </p>
             </div>
           ) : (
@@ -255,10 +250,7 @@ export function ChatPanel({ ticker, stockContext }: ChatPanelProps) {
 
         {/* Input area */}
         <div className="shrink-0 border-t border-[#4d4d4f] p-3">
-          <form
-            onSubmit={handleSubmit}
-            className="flex items-end gap-2"
-          >
+          <form onSubmit={handleSubmit} className="flex items-end gap-2">
             <div className="relative flex-1">
               <Input
                 placeholder={`Ask about ${ticker}...`}
