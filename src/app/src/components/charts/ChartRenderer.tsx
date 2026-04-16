@@ -97,5 +97,5 @@ export function ChartRenderer({ chart, sentimentChart }: ChartRendererProps) {
     }
   }, [chart, sentimentChart]);
 
-  return <div className="chart-wrapper">{chartComponent}</div>;
+  return <div className="w-full min-h-0">{chartComponent}</div>;
 }

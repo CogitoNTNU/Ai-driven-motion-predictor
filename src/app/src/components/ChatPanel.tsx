@@ -3,16 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ArrowUp, Square } from "lucide-react";
+import { ArrowUp, Square, Maximize2, Minimize2 } from "lucide-react";
 import { useChat } from "@/hooks/use-chat";
-import { ChartRenderer } from "@/components/charts/ChartRenderer";
 import { Streamdown } from "streamdown";
 import { code } from "@streamdown/code";
 import {
-  isChartPart,
   isToolCallPart,
   isToolResultPart,
-  type ChartData,
   type Message,
   type ToolCallPart,
   type ToolResultPart,
@@ -153,8 +150,23 @@ export function ChatPanel({ ticker, stockContext }: ChatPanelProps) {
     <TooltipProvider delayDuration={100}>
       <div className="flex flex-1 min-h-0 flex-col overflow-hidden rounded-xl border border-[#4d4d4f] bg-[#2f2f2f]">
         {/* Card header */}
-        <div className="shrink-0 border-b border-[#4d4d4f] px-4 py-3">
+        <div className="shrink-0 border-b border-[#4d4d4f] px-4 py-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-white">Ask about {ticker}</h2>
+          {onToggleExpand && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onToggleExpand}
+              className="h-7 w-7 rounded-lg text-[#9ca3af] hover:bg-[#404040] hover:text-white transition-colors"
+              title={isExpanded ? "Collapse chat" : "Expand chat"}
+            >
+              {isExpanded ? (
+                <Minimize2 className="h-4 w-4" />
+              ) : (
+                <Maximize2 className="h-4 w-4" />
+              )}
+            </Button>
+          )}
         </div>
 
         {/* Scrollable message area */}
@@ -168,8 +180,6 @@ export function ChatPanel({ ticker, stockContext }: ChatPanelProps) {
           ) : (
             <div className="flex flex-col">
               {messages.map((message) => {
-                const chartPairs =
-                  message.role === "assistant" ? extractChartPairs(message) : [];
                 const toolCalls =
                   message.role === "assistant" ? extractToolCalls(message) : [];
                 const isLastAssistantMessage =
@@ -221,22 +231,6 @@ export function ChatPanel({ ticker, stockContext }: ChatPanelProps) {
                                 index={idx + 1}
                                 toolCall={toolCall}
                               />
-                            ))}
-                          </div>
-                        )}
-
-                        {chartPairs.length > 0 && (
-                          <div className="space-y-4 pt-1">
-                            {chartPairs.map((pair, idx) => (
-                              <div
-                                key={idx}
-                                className="rounded-xl border border-[#4d4d4f] bg-[#212121] p-3"
-                              >
-                                <ChartRenderer
-                                  chart={pair.stock || pair.sentiment!}
-                                  sentimentChart={pair.sentiment}
-                                />
-                              </div>
                             ))}
                           </div>
                         )}
