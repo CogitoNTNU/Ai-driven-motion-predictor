@@ -297,8 +297,9 @@ nvidia-nccl-cu12==2.27.5 ; platform_machine == 'x86_64' and sys_platform == 'lin
     --hash=sha256:ad730cf15cb5d25fe849c6e6ca9eb5b76db16a80f13f425ac68d8e2e55624457
 nvidia-nvjitlink-cu12==12.8.93 ; platform_machine == 'x86_64' and sys_platform == 'linux' \
     --hash=sha256:81ff63371a7ebd6e6451970684f916be2eab07321b73c9d244dc2b4da7f73b88
-nvidia-nvshmem-cu12==3.4.5 ; platform_machine == 'x86_64' and sys_platform == 'linux' \
-    --hash=sha256:042f2500f24c021db8a06c5eec2539027d57460e1c1a762055a6554f72c369bd
+nvidia-nvshmem-cu12==3.6.5 ; platform_machine == 'x86_64' and sys_platform == 'linux' \
+    --hash=sha256:7b38521ff84cdfc68da3360fe249cfbabfe05ee9aa271458857476124b03a420 \
+    --hash=sha256:f86db35f1ced21a790fa255dcae7db8998bf8655a95e76c033a6574190b398e4
 nvidia-nvtx-cu12==12.8.90 ; platform_machine == 'x86_64' and sys_platform == 'linux' \
     --hash=sha256:5b17e2001cc0d751a5bc2c6ec6d26ad95913324a4adb86788c944f8ce9ba441f
 packaging==26.0 \
