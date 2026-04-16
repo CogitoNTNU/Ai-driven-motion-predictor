@@ -75,7 +75,7 @@ export function StockChartPanel({ ticker }: StockChartPanelProps) {
   }, [ticker, range]);
 
   return (
-    <div className="flex min-h-0 flex-col rounded-xl border border-[#4d4d4f] bg-[#2f2f2f] p-4">
+    <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-[#4d4d4f] bg-[#2f2f2f] p-4">
       {/* Header row */}
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-sm font-semibold text-white">Price History</h2>
@@ -98,9 +98,11 @@ export function StockChartPanel({ ticker }: StockChartPanelProps) {
 
       {/* Content */}
       {loading ? (
-        <div className="space-y-3">
-          <div className="animate-pulse rounded-lg bg-[#404040] h-8 w-32" />
-          <div className="animate-pulse rounded-lg bg-[#404040] h-[280px]" />
+        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
+          <div className="h-8 w-32 animate-pulse rounded-lg bg-[#404040]" />
+          <div className="min-h-0 flex-1 overflow-hidden rounded-xl bg-[#363636]">
+            <div className="h-full w-full animate-pulse bg-[#404040]" />
+          </div>
         </div>
       ) : error ? (
         <div className="flex h-[300px] items-center justify-center">
