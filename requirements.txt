@@ -271,8 +271,10 @@ numpy==2.4.3 \
     --hash=sha256:76f0f283506c28b12bba319c0fab98217e9f9b54e6160e9c79e9f7348ba32e9c \
     --hash=sha256:abdce0f71dcb4a00e4e77f3faf05e4616ceccfe72ccaa07f47ee79cda3b7b0f4 \
     --hash=sha256:e7dd01a46700b1967487141a66ac1a3cf0dd8ebf1f08db37d46389401512ca97
-nvidia-cublas-cu12==12.8.4.1 ; platform_machine == 'x86_64' and sys_platform == 'linux' \
-    --hash=sha256:8ac4e771d5a348c551b2a426eda6193c19aa630236b418086020df5ba9667142
+nvidia-cublas-cu12==12.9.2.10 ; platform_machine == 'x86_64' and sys_platform == 'linux' \
+    --hash=sha256:5572131a59c3eebeeb1c4c8144f772d49372c20124916e072a0e3fc30df421d5 \
+    --hash=sha256:623f43027d40d44ceadf0043f002bd25cf353e8f13ce90b9a87057019f560661 \
+    --hash=sha256:e4f53a8ca8c5d6e8c492d0d0a3d565ecb59a751b19cfdaa4f6da0ab2104c1702
 nvidia-cuda-cupti-cu12==12.8.90 ; platform_machine == 'x86_64' and sys_platform == 'linux' \
     --hash=sha256:ea0cb07ebda26bb9b29ba82cda34849e73c166c18162d3913575b0c9db9a6182
 nvidia-cuda-nvrtc-cu12==12.8.93 ; platform_machine == 'x86_64' and sys_platform == 'linux' \
