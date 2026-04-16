@@ -27,14 +27,16 @@ function extractChartPairs(
 
   const bySymbol: Record<string, { stock?: ChartData; sentiment?: ChartData }> = {};
   for (const chart of charts) {
-    const symbol = chart.symbol;
-    if (!bySymbol[symbol]) bySymbol[symbol] = {};
     if (
       chart.tool_name === "get_stock_growth" ||
       chart.tool_name === "get_current_price"
     ) {
-      bySymbol[symbol].stock = chart;
-    } else if (chart.tool_name === "get_stock_news_sentiment") {
+      continue;
+    }
+
+    const symbol = chart.symbol;
+    if (!bySymbol[symbol]) bySymbol[symbol] = {};
+    if (chart.tool_name === "get_stock_news_sentiment") {
       bySymbol[symbol].sentiment = chart;
     } else {
       bySymbol[symbol].stock = chart;
