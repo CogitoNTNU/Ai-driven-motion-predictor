@@ -123,7 +123,7 @@ export function ChatPanel({ ticker, stockContext, isExpanded = false, onToggleEx
 
   return (
     <TooltipProvider delayDuration={100}>
-      <div className="flex flex-1 min-h-0 flex-col overflow-hidden rounded-xl border border-[#4d4d4f] bg-[#2f2f2f]">
+      <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-[#4d4d4f] bg-[#2f2f2f]">
         {/* Card header */}
         <div className="shrink-0 border-b border-[#4d4d4f] px-4 py-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-white">Ask about {ticker}</h2>

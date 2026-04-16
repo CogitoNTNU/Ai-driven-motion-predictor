@@ -54,18 +54,22 @@ export function DashboardPage() {
       >
         {/* Left column */}
         <div
-          className="grid min-h-0 gap-4 transition-all duration-300 ease-in-out"
+          className="relative grid min-h-0 gap-4 transition-all duration-300 ease-in-out"
           style={{
-            gridTemplateRows: isChatExpanded ? "1fr 3fr" : "1fr 1fr",
+            gridTemplateRows: "1fr 1fr",
           }}
         >
           <StockChartPanel ticker={symbol} />
-          <ChatPanel
-            ticker={symbol}
-            stockContext={stockContext}
-            isExpanded={isChatExpanded}
-            onToggleExpand={() => setIsChatExpanded(!isChatExpanded)}
-          />
+          <div
+            className={isChatExpanded ? "absolute inset-0 z-20" : "min-h-0"}
+          >
+            <ChatPanel
+              ticker={symbol}
+              stockContext={stockContext}
+              isExpanded={isChatExpanded}
+              onToggleExpand={() => setIsChatExpanded(!isChatExpanded)}
+            />
+          </div>
         </div>
 
         {/* Right column */}
